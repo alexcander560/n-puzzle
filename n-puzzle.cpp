@@ -27,6 +27,10 @@ using namespace std;
 
 void printf_(string str, string color) { cout << color + str + DEFAULT"\n"; }
 
+//===========================================
+// Проверить валидность чисел в поданном векторе!!!
+//===========================================
+
 class Puzzle {
 	public:
 		bool					validity;	// является ли головоломка валидной
