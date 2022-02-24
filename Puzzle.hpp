@@ -5,6 +5,7 @@
 #include <queue>
 #include <set>
 #include <algorithm>
+#include <fstream>
 
 using namespace std;
 
@@ -40,38 +41,24 @@ class Puzzle {
 
 		// Конструктор (1 аргумент - список чисел справа налево и сверху вниз)
 		Puzzle(vector<int> v) {
-			int temp = sqrt(v.size()), ind = 0;
+			init(v);
+		}
+		// Конструктор (1 аргумент - имя файла сгенерированного npuzzle-gen.py, только СГЕНЕРИРОВАННЫХ!!!!)
+		Puzzle(string name_file) {
+			ifstream	file(name_file);
+			string		str;
+			int			count, temp;
+			vector<int>	v;
 
-			validity = false;
-			direction = NO;
-			if (v.size() > 100) {
-				printf_("Головоломка слишком велика =(", RED);
-				return ;
+			getline(file, str);
+			file >> count;
+			count *= count;
+			for (int i = 0; i < count; i++) {
+				file >> temp;
+				v.push_back(temp);
 			}
-			if (v.size() <= 1) {
-				printf_("Головоломка слишком мала =(", RED);
-				return ;
-			}
-			if (sqrt(v.size()) == temp) {	// опасное место, но в нашем случае должно быть всё хорошо(но это не точно)
-				size = temp;
-				distance = log10(v.size()) + 2;
-				box.resize(size);
-				for (int i = 0; i < size; i++)
-					for (int j = 0; j < size; j++)
-						box[i].push_back(v[ind++]);
-				point = find();
-				if (validity_numbers(v))
-					validity = check(v);
-				answer = check();
-			}
-			else {
-				printf_("Вы подали неверное кол-во элементов в векторе =(", RED);
-				validity = false;
-				size = -1;
-				distance = -1;
-				answer = false;
-				point = make_pair(-1, -1);
-			}
+			file.close();
+			init(v);
 		}
 		// Печать головоломки на экран
 		void			print() const{
@@ -115,6 +102,41 @@ class Puzzle {
 		}
 	
 	private:
+		// Начальная проверка всех условий
+		void			init(vector<int> v) {
+			int temp = sqrt(v.size()), ind = 0;
+
+			validity = false;
+			direction = NO;
+			if (v.size() > 100) {
+				printf_("Головоломка слишком велика =(", RED);
+				return ;
+			}
+			if (v.size() <= 1) {
+				printf_("Головоломка слишком мала =(", RED);
+				return ;
+			}
+			if (sqrt(v.size()) == temp) {	// опасное место, но в нашем случае должно быть всё хорошо(но это не точно)
+				size = temp;
+				distance = log10(v.size()) + 2;
+				box.resize(size);
+				for (int i = 0; i < size; i++)
+					for (int j = 0; j < size; j++)
+						box[i].push_back(v[ind++]);
+				point = find();
+				if (validity_numbers(v))
+					validity = check(v);
+				answer = check();
+			}
+			else {
+				printf_("Вы подали неверное кол-во элементов в векторе =(", RED);
+				validity = false;
+				size = -1;
+				distance = -1;
+				answer = false;
+				point = make_pair(-1, -1);
+			}
+		}
 		// Проверка валидности поданых чисел
 		bool			validity_numbers(vector<int> v) const {
 			int	count = 0, end = size * size;
