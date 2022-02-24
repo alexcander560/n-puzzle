@@ -81,10 +81,10 @@ void	test(vector<int> numbers) {
 	Puzzle			puzzle(numbers);
 	unsigned int	time;
 
-	puzzle.print();
 	cout << "=====================================" << endl;
 	cout << "=------------Тестируем--------------=" << endl;
 	cout << "=====================================" << endl;
+	puzzle.print();
 	time = clock();
 	brute_force(puzzle);
 	time = clock() - time;
@@ -96,10 +96,10 @@ void	test(string name_file) {
 	Puzzle			puzzle(name_file);
 	unsigned int	time;
 
-	puzzle.print();
 	cout << "=====================================" << endl;
 	cout << "=------------Тестируем--------------=" << endl;
 	cout << "=====================================" << endl;
+	puzzle.print();
 	time = clock();
 	brute_force(puzzle);
 	time = clock() - time;
@@ -119,18 +119,20 @@ int main() {
 	vector<int> numbers9 = {7, 0, 5, 8, 6, 3, 2, 1, 4};	// 232.918 шагов
 	vector<int> numbers10 = {7, 0, 5, 8, 6, 3, 2, 1, 100};	// не валидна (не все числа нужные)
 	vector<int> numbers11 = {7, 4, 0, 8, 6, 2, 1, 5, 3};	// 109406 шагов
+	vector<int> numbers12 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0};
 
 	// test(numbers1);
-	//test(numbers2);
+	// test(numbers2);
 	// test(numbers3);
 	// test(numbers4);
 	// test(numbers5);
 	// test(numbers6);
 	// test(numbers7);
-	//test(numbers8);
-	//test(numbers9);
-	//test(numbers10);
-	//test(numbers11);
+	// test(numbers8);
+	// test(numbers9);
+	// test(numbers10);
+	// test(numbers11);
+	// test(numbers12);
 
 	test("test.txt");
 

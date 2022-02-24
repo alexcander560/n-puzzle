@@ -164,11 +164,11 @@ class Puzzle {
 		}
 		// Проверка, можно ли сложить данную головоломку (от этот блок ещё стоит проверить, но вроед ок)
 		bool			check(vector<int> v) const {
-			int len = size * size, count = point.second;
+			int len = size * size, count = 0;
 
 			for (int i = 0; i < len-1; i++)
 				for (int j = i+1; j < len; j++)
-					if (v[i] > v[j])
+					if (v[i] && v[j] && v[i] > v[j])
 						count++;
 			return (count % 2 == 0);
 		}
