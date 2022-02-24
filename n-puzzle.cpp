@@ -1,5 +1,24 @@
 #include "Puzzle.hpp"
 
+//=================================================================================
+// Считает значение для эвристика "Манхэттеновское расстояние"
+int		manhattan_distance_count(vector <vector <int> > v) {
+	int res = 0, size = v.size();
+
+	for (int i = 0; i < size; i++) {
+		for (int j = 0; j < size; j++) {
+			if (v[i][j] != 0) {
+				//cout << v[i][j] << " ( " << (v[i][j]-1)/size << " " << (v[i][j]-1)%size << " ) ";
+				//cout << abs(i - ((v[i][j]-1)/size)) + abs(j - ((v[i][j]-1)%size)) << endl;
+				res += abs(i - ((v[i][j]-1)/size)) + abs(j - ((v[i][j]-1)%size));
+			}
+		}
+	}
+	//cout << res << endl;
+	return (res);
+}
+//=================================================================================
+//=================================================================================
 // Считает значение для эвристика "Линейные конфликты"
 int		linear_conflicts_count(vector <vector <int> > v) {
 	int res = 0, size = v.size();
@@ -32,13 +51,33 @@ int		linear_conflicts_count(vector <vector <int> > v) {
 			}
 		}
 	}
+	
+	
+	return (res);
+}
+//=================================================================================
+// Считает вес для головоломки с помощью эвристичесих функций
+// 1 - "Манхэттеновское расстояние"
+// 2 - "Линейные конфликты"
+// 3 - "Манхэттеновское расстояние" + "Линейные конфликты"
+int		heuristics_count(vector <vector <int> > v, int mod) {
+	int	res = 0;
+
+	if (mod == 1)
+		res = manhattan_distance_count(v);
+	else if (mod == 2)
+		res = linear_conflicts_count(v);
+	else if (mod == 3)
+		res = manhattan_distance_count(v) + linear_conflicts_count(v);
+
 	return (res);
 }
 
-// Эвристика "Линейные конфликты"
-void	linear_conflicts(Puzzle puzzle) {
+//=================================================================================
+// Метод, использующий эвристику
+void	heuristics(Puzzle puzzle, int mod) {
 	multimap<int, Puzzle>			q;			// очередь из вариантов головоломок, требующих рассмотрения
-	set<vector<vector <int> > >	visited;	// множество уже рассмотренных вариантов
+	set<vector<vector <int> > >	visited;		// множество уже рассмотренных вариантов
 	bool							flag = true;
 	int								step = 0, size = puzzle.size - 1;
 	Puzzle							res = puzzle;
@@ -67,7 +106,7 @@ void	linear_conflicts(Puzzle puzzle) {
 			step++;
 			temp.swapBlock(UP);
 			if (visited.insert(temp.box).second)
-				q.insert(make_pair(linear_conflicts_count(temp.box), temp));
+				q.insert(make_pair(heuristics_count(temp.box, mod), temp));
 			if (temp.answer) {
 				res = temp;
 				break ;
@@ -79,7 +118,7 @@ void	linear_conflicts(Puzzle puzzle) {
 			step++;
 			temp.swapBlock(DOWN);
 			if (visited.insert(temp.box).second)
-				q.insert(make_pair(linear_conflicts_count(temp.box), temp));
+				q.insert(make_pair(heuristics_count(temp.box, mod), temp));
 			if (temp.answer) {
 				res = temp;
 				break ;
@@ -91,7 +130,7 @@ void	linear_conflicts(Puzzle puzzle) {
 			step++;
 			temp.swapBlock(RIGHT);
 			if (visited.insert(temp.box).second)
-				q.insert(make_pair(linear_conflicts_count(temp.box), temp));
+				q.insert(make_pair(heuristics_count(temp.box, mod), temp));
 			if (temp.answer) {
 				res = temp;
 				break ;
@@ -103,7 +142,7 @@ void	linear_conflicts(Puzzle puzzle) {
 			step++;
 			temp.swapBlock(LEFT);
 			if (visited.insert(temp.box).second)
-				q.insert(make_pair(linear_conflicts_count(temp.box), temp));
+				q.insert(make_pair(heuristics_count(temp.box, mod), temp));
 			if (temp.answer) {
 				res = temp;
 				break ;
@@ -121,7 +160,8 @@ void	linear_conflicts(Puzzle puzzle) {
 	cout << "Рассмотренных головоломок: " << visited.size() << endl;
 	cout << "Шагов: " << step << endl;
 }
-
+//=================================================================================
+//=================================================================================
 // Метод решения перебором
 void	brute_force(Puzzle puzzle) {
 	queue<Puzzle>					q;			// очередь из вариантов головоломок, требующих рассмотрения
@@ -197,9 +237,11 @@ void	brute_force(Puzzle puzzle) {
 	cout << "Рассмотренных головоломок: " << visited.size() << endl;
 	cout << "Шагов: " << step << endl;
 }
+//=================================================================================
 
-// Тестирование методом перебора (данные берутся из вектора)
-void	test(vector<int> numbers) {
+// Запуск тестирование
+template <typename T>
+void	test(T numbers) {
 	Puzzle			puzzle(numbers);
 	unsigned int	time;
 
@@ -213,31 +255,19 @@ void	test(vector<int> numbers) {
 	brute_force(puzzle);
 	time = clock() - time;
 	cout << "Время: " << (double)time/1000000 << " c." << endl;
-	cout << "------------Линейный конфликт--------" << endl;
+	cout << "------Манхэттеновское расстояние-----" << endl;
 	time = clock();
-	linear_conflicts(puzzle);
-	time = clock() - time;
-	cout << "Время: " << (double)time/1000000 << " c." << endl;
-}
-
-// Тестирование методом перебора (данные берутся из файла)
-void	test(string name_file) {
-	Puzzle			puzzle(name_file);
-	unsigned int	time;
-
-	cout << "=====================================" << endl;
-	cout << "=------------Тестируем--------------=" << endl;
-	cout << "=====================================" << endl;
-	cout << "-----------------Старт---------------" << endl;
-	puzzle.print();
-	cout << "-------------Грубая сила-------------" << endl;
-	time = clock();
-	brute_force(puzzle);
+	heuristics(puzzle, 1);
 	time = clock() - time;
 	cout << "Время: " << (double)time/1000000 << " c." << endl;
 	cout << "------------Линейный конфликт--------" << endl;
 	time = clock();
-	linear_conflicts(puzzle);
+	heuristics(puzzle, 2);
+	time = clock() - time;
+	cout << "Время: " << (double)time/1000000 << " c." << endl;
+	cout << "---Манхэттеновское расстояние + Линейный конфликт---" << endl;
+	time = clock();
+	heuristics(puzzle, 3);
 	time = clock() - time;
 	cout << "Время: " << (double)time/1000000 << " c." << endl;
 }
@@ -265,12 +295,12 @@ int main() {
 	// test(numbers6);
 	// test(numbers7);
 	// test(numbers8);
-	 test(numbers9);
+	// test(numbers9);
 	// test(numbers10);
 	// test(numbers11);
 	// test(numbers12);
 
-	//test("test.txt");
+	test("test.txt");
 
 	// vector< vector <int> > v;
 	// v.resize(3);
@@ -283,7 +313,7 @@ int main() {
 	// v[2].push_back(7);
 	// v[2].push_back(8);
 	// v[2].push_back(0);
-	// linear_conflicts_count(v);
+	// manhattan_distance_count(v);
 
 	return (0);
 }
