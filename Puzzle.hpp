@@ -38,6 +38,8 @@ class Puzzle {
 		bool					answer;		// собрана головоломка или нет
 		int						direction;	// направление прошлого движения пустого блока
 		pair<int, int>			point;		// координаты пустого блока
+		int						step;		// сколько шагов было сделано, что бы придти к этому варианту
+		vector<int>				manual;		// порядок движений для сборки
 
 		// Конструктор (1 аргумент - список чисел справа налево и сверху вниз)
 		Puzzle(vector<int> v) {
@@ -60,8 +62,8 @@ class Puzzle {
 			file.close();
 			init(v);
 		}
-		// Печать головоломки на экран
-		void			print() const{
+		// Печать головоломки на экран (если 1 аргумент true - то выведется порядок движений для решения головоломкм)
+		void			print(bool flag = false) const{
 			if (!validity) {
 				printf_("Головоломка не валидна", RED);
 				return ;
@@ -85,6 +87,9 @@ class Puzzle {
 			else
 				cout << "нет" << endl;
 
+			cout << "Всего передвижений: " << step << endl;
+			if (flag)
+				print_manual();
 			answer ? printf_("Головоломка решена", GREEN) : printf_("Головоломка не решена", RED);
 		}
 		// Передвинуть пустой в нужном направлении (внимание, функция небезопасна, не всегда можно передвинуть!!!)
@@ -99,6 +104,8 @@ class Puzzle {
 			else if (dir == LEFT)
 				swap(box[point.first][point.second], box[point.first][--point.second]);
 			answer = check();
+			step++;
+			manual.push_back(dir);
 		}
 	
 	private:
@@ -108,6 +115,7 @@ class Puzzle {
 
 			validity = false;
 			direction = NO;
+			step = 0;
 			if (v.size() > 100) {
 				printf_("Головоломка слишком велика =(", RED);
 				return ;
@@ -179,5 +187,21 @@ class Puzzle {
 					if (box[i][j] == 0)
 						return (make_pair(i, j));
 			return (make_pair(-1, -1));
+		}
+		// Печать ходов передвижения пустого блока
+		void			print_manual() const {
+			for (int i = 0; i < step; i++) {
+				cout << setw(direction) << i+1 << ") ";
+				if (manual[i] == UP)
+					cout << "вверх" << endl;
+				else if (manual[i] == DOWN)
+					cout << "вниз" << endl;
+				else if (manual[i] == RIGHT)
+					cout << "вправо" << endl;
+				else if (manual[i] == LEFT)
+					cout << "влево" << endl;
+				else
+					cout << "нет" << endl;
+			}
 		}
 };

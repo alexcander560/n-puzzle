@@ -70,7 +70,7 @@ void	brute_force(Puzzle puzzle) {
 	if (!flag)
 		printf_("Перебраны все варианты, но головоломка не решена", YELLOW);
 	if (q.size() != 0)
-		q.back().print();	// должна быть решённая головоломка
+		q.back().print(true);	// должна быть решённая головоломка
 	cout << "Элементов в очереди: " << q.size() - (q.size() ? 1 : 0) << endl;
 	cout << "Рассмотренных головоломок: " << visited.size() << endl;
 	cout << "Шагов: " << step << endl;
@@ -118,7 +118,7 @@ int main() {
 	vector<int> numbers8 = {1, 2, 3, 4, 5, 6, 8, 7, 0};	// нельзя решить
 	vector<int> numbers9 = {7, 0, 5, 8, 6, 3, 2, 1, 4};	// 232.918 шагов
 	vector<int> numbers10 = {7, 0, 5, 8, 6, 3, 2, 1, 100};	// не валидна (не все числа нужные)
-	vector<int> numbers11 = {7, 4, 0, 8, 6, 2, 1, 5, 3};	// 109406 шагов
+	vector<int> numbers11 = {4, 6, 8, 2, 7, 5, 1, 3, 0};	// 
 	vector<int> numbers12 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0};
 
 	// test(numbers1);
@@ -131,7 +131,7 @@ int main() {
 	// test(numbers8);
 	// test(numbers9);
 	// test(numbers10);
-	// test(numbers11);
+	//test(numbers11);
 	// test(numbers12);
 
 	test("test.txt");
