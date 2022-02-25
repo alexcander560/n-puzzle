@@ -56,6 +56,43 @@ int		linear_conflicts_count(vector <vector <int> > v) {
 	return (res);
 }
 //=================================================================================
+//=================================================================================
+// Считает значение для эвристика "Угловые элементы"
+int		corner_tiles(vector <vector <int> > v) {
+	int res = 0, size = v.size();
+
+	if (v[0][0] != 0) {
+		if ((0 != ((v[0][0]-1)/size)) || (0 != ((v[0][0]-1)%size))) {
+			//cout << "Верхний левый угол" << endl;
+			if (((0 == ((v[0][1]-1)/size)) && (1 == ((v[0][1]-1)%size))) || ((1 == ((v[1][0]-1)/size)) && (0 == ((v[1][0]-1)%size)))) {
+				//cout << "Так: " << v[0][0] << endl;
+				res += 2;
+			}
+		}
+	}
+	if (v[0][size-1] != 0) {
+		if ((0 != ((v[0][size-1]-1)/size)) || (size-1 != ((v[0][size-1]-1)%size))) {
+			//cout << "Верхний правый угол" << endl;
+			if (((0 == ((v[0][size-2]-1)/size)) && (size-2 == ((v[0][size-2]-1)%size))) || ((1 == ((v[1][size-1]-1)/size)) && (size-1 == ((v[1][size-1]-1)%size)))) {
+				//cout << "Так: " << v[0][size-1] << endl;
+				res += 2;
+			}
+		}
+	}
+	if (v[size-1][0] != 0) {
+		if ((size-1 != ((v[size-1][0]-1)/size)) || (0 != ((v[size-1][0]-1)%size))) {
+			//cout << "Нижний левый угол" << endl;
+			if (((size-1 == ((v[size-1][1]-1)/size)) && (1 == ((v[size-1][1]-1)%size))) || ((size-2 == ((v[size-2][0]-1)/size)) && (0 == ((v[size-2][0]-1)%size)))) {
+				//cout << "Так: " << v[size-1][0] << endl;
+				res += 2;
+			}
+		}
+		
+	}
+	//cout << "res= " << res << endl;
+	return (res);
+}
+//=================================================================================
 // Считает вес для головоломки с помощью эвристичесих функций
 // 1 - "Манхэттеновское расстояние"
 // 2 - "Линейные конфликты"
@@ -69,6 +106,8 @@ int		heuristics_count(vector <vector <int> > v, int mod) {
 		res = linear_conflicts_count(v);
 	else if (mod == 3)
 		res = manhattan_distance_count(v) + linear_conflicts_count(v);
+	else if (mod == 4)
+		res = corner_tiles(v);
 
 	return (res);
 }
@@ -154,8 +193,8 @@ void	heuristics(Puzzle puzzle, int mod) {
 	}
 	if (!flag)
 		printf_("Перебраны все варианты, но головоломка не решена", YELLOW);
-	if (q.size() != 0)
-		res.print();	// должна быть решённая головоломка
+	// if (q.size() != 0)
+	// 	res.print();	// должна быть решённая головоломка
 	cout << "Элементов в очереди: " << q.size() - (q.size() ? 1 : 0) << endl;
 	cout << "Рассмотренных головоломок: " << visited.size() << endl;
 	cout << "Шагов: " << step << endl;
@@ -231,8 +270,8 @@ void	brute_force(Puzzle puzzle) {
 	}
 	if (!flag)
 		printf_("Перебраны все варианты, но головоломка не решена", YELLOW);
-	if (q.size() != 0)
-		q.back().print();	// должна быть решённая головоломка
+	// if (q.size() != 0)
+	// 	q.back().print();	// должна быть решённая головоломка
 	cout << "Элементов в очереди: " << q.size() - (q.size() ? 1 : 0) << endl;
 	cout << "Рассмотренных головоломок: " << visited.size() << endl;
 	cout << "Шагов: " << step << endl;
@@ -250,24 +289,29 @@ void	test(T numbers) {
 	cout << "=====================================" << endl;
 	cout << "-----------------Старт---------------" << endl;
 	puzzle.print();
-	cout << "-------------Грубая сила-------------" << endl;
+	printf_("-------------Грубая сила-------------", BLUE);
 	time = clock();
 	brute_force(puzzle);
 	time = clock() - time;
 	cout << "Время: " << (double)time/1000000 << " c." << endl;
-	cout << "------Манхэттеновское расстояние-----" << endl;
+	printf_("------Манхэттеновское расстояние-----", BLUE);
 	time = clock();
 	heuristics(puzzle, 1);
 	time = clock() - time;
 	cout << "Время: " << (double)time/1000000 << " c." << endl;
-	cout << "------------Линейный конфликт--------" << endl;
+	printf_("------------Линейный конфликт--------", BLUE);
 	time = clock();
 	heuristics(puzzle, 2);
 	time = clock() - time;
 	cout << "Время: " << (double)time/1000000 << " c." << endl;
-	cout << "---Манхэттеновское расстояние + Линейный конфликт---" << endl;
+	printf_("---Манхэттеновское расстояние + Линейный конфликт---", BLUE);
 	time = clock();
 	heuristics(puzzle, 3);
+	time = clock() - time;
+	cout << "Время: " << (double)time/1000000 << " c." << endl;
+	printf_("------------Угловые элементы-------------", BLUE);
+	time = clock();
+	heuristics(puzzle, 4);
 	time = clock() - time;
 	cout << "Время: " << (double)time/1000000 << " c." << endl;
 }
@@ -297,23 +341,23 @@ int main() {
 	// test(numbers8);
 	// test(numbers9);
 	// test(numbers10);
-	// test(numbers11);
+	 test(numbers11);
 	// test(numbers12);
 
-	test("test.txt");
+	//test("test.txt");
 
 	// vector< vector <int> > v;
 	// v.resize(3);
-	// v[0].push_back(2);
-	// v[0].push_back(1);
-	// v[0].push_back(3);
-	// v[1].push_back(6);
-	// v[1].push_back(5);
+	// v[0].push_back(0);
+	// v[0].push_back(0);
+	// v[0].push_back(0);
 	// v[1].push_back(4);
-	// v[2].push_back(7);
-	// v[2].push_back(8);
+	// v[1].push_back(0);
+	// v[1].push_back(0);
 	// v[2].push_back(0);
-	// manhattan_distance_count(v);
+	// v[2].push_back(0);
+	// v[2].push_back(0);
+	// corner_tiles(v);
 
 	return (0);
 }
