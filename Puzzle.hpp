@@ -26,6 +26,8 @@ using namespace std;
 #define LEFT		3
 #define RIGHT		4
 
+#define LIMIT		300000
+
 #define clear() printf("\033[H\033[J")
 
 void	printf_(string str, string color) { cout << color + str + DEFAULT"\n"; }
@@ -112,12 +114,12 @@ class Puzzle {
 	private:
 		// Начальная проверка всех условий
 		void			init(vector<int> v) {
-			int temp = sqrt(v.size()), ind = 0;
+			int	temp = sqrt(v.size()), ind = 0;
 
 			validity = false;
 			direction = NO;
 			step = 0;
-			if (v.size() > 100) {
+			if (v.size() > 49) {
 				printf_("Головоломка слишком велика =(", RED);
 				return ;
 			}
@@ -134,7 +136,7 @@ class Puzzle {
 						box[i].push_back(v[ind++]);
 				point = find();
 				if (validity_numbers(v))
-					validity = check(v);
+					validity = check_decision(v);
 				answer = check();
 			}
 			else {
@@ -172,13 +174,21 @@ class Puzzle {
 			return (true);
 		}
 		// Проверка, можно ли сложить данную головоломку (от этот блок ещё стоит проверить, но вроед ок)
-		bool			check(vector<int> v) const {
-			int len = size * size, count = 0;
+		bool			check_decision(vector<int> v) const {
+			int				len = size * size, count = 0;
 
 			for (int i = 0; i < len-1; i++)
 				for (int j = i+1; j < len; j++)
 					if (v[i] && v[j] && v[i] > v[j])
 						count++;
+			// Если головоломка чётная (https://www.geeksforgeeks.org/check-instance-15-puzzle-solvable/)
+			if (size % 2 == 0) {
+				for (int i = size - 1; i >= 0; i--)
+					for (int j = size - 1; j >= 0; j--)
+						if (box[i][j] == 0)
+							return ((size - i) & 1 ? !(count & 1) : (count & 1));
+			}
+
 			return (count % 2 == 0);
 		}
 		// Поиск координат пустого блока

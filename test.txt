@@ -1,5 +1,7 @@
-# This puzzle is solvable
-3
-5 8 4 
-7 0 2 
-3 6 1 
+# This puzzle is unsolvable
+5
+10  6 16  1  8 
+11 15 22  5 14 
+17  4 20 12 19 
+ 7 18 23  0  3 
+13  2  9 21 24 
