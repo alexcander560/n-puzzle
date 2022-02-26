@@ -23,7 +23,7 @@ int		manhattan_distance(vector <vector <int> > &v) {
 }
 //=================================================================================
 //=================================================================================
-// Считает значение для эвристика "Линейные конфликты"
+// Считает значение для эвристика "Линейные конфликты" (возможно здесь есть двойной счёт, но ёто не точно)
 int		linear_conflicts(vector <vector <int> > &v) {
 	int res = 0, size = v.size();
 
@@ -36,8 +36,11 @@ int		linear_conflicts(vector <vector <int> > &v) {
 				if ((i == 2 && k == 2) || v[i][k] == 0)
 					continue ;
 				//cout << v[i][j] << " ? " << v[i][k] << endl;
-				if (v[i][j] > v[i][k])
-					res += 2;
+				// Нужно проверить находятся ли они в своих строках
+				if (((v[i][j] - 1) / size == i) && ((v[i][k]- 1) / size == i)) {
+					if (v[i][j] > v[i][k])
+						res += 2;
+				}
 			}
 		}
 	}
@@ -226,11 +229,11 @@ int		heuristics_count(vector <vector <int> > &v, int mod) {
 //=================================================================================
 //=================================================================================
 // Метод, использующий эвристику
-void	heuristics(Puzzle puzzle, int mod) {
+void	heuristics(Puzzle puzzle, int mod, int mod_print = 0) {
 	multimap<int, Puzzle>			q;			// очередь из вариантов головоломок, требующих рассмотрения
 	set<vector<vector <int> > >	visited;		// множество уже рассмотренных вариантов
 	bool							flag = true, lim = false;
-	int								step = 0, size = puzzle.size - 1;
+	int								step = 0, size = puzzle.size - 1, max_size_q = 0;
 	Puzzle							res = puzzle;
 
 	if (!puzzle.validity) {
@@ -304,25 +307,30 @@ void	heuristics(Puzzle puzzle, int mod) {
 			lim = true;
 			break ;
 		}
+		if (q.size() > max_size_q)
+			max_size_q = q.size();
 	}
+	int	count_elem = q.size() - (q.size() ? 1 : 0);
+
 	if (!flag)
 		printf_("Перебраны все варианты, но головоломка не решена", YELLOW);
 	if (lim)
 		printf_("Алгоритм сделал " + to_string(LIMIT) + " шагов, но не пришёл к решению, стоит выбрать другой метод =(", YELLOW);
 	if (q.size() != 0)
-		res.print();	// должна быть решённая головоломка
-	cout << "Элементов в очереди: " << q.size() - (q.size() ? 1 : 0) << endl;
+		res.print(mod_print);	// должна быть решённая головоломка
+	cout << "Элементов в очереди: " << count_elem << endl;
+	cout << "Максимальное кол-во элементов в очереди: " << ((max_size_q > count_elem) ? max_size_q : count_elem) << endl;
 	cout << "Рассмотренных головоломок: " << visited.size() << endl;
 	cout << "Шагов: " << step << endl;
 }
 //=================================================================================
 //=================================================================================
 // Метод решения обходом в ширину (все узлы имеют одинаковый вес и равноценны между собой)
-void	uniform_cost(Puzzle puzzle) {
+void	uniform_cost(Puzzle puzzle, int mod_print = 0) {
 	queue<Puzzle>					q;			// очередь из вариантов головоломок, требующих рассмотрения
 	set<vector <vector <int> > >	visited;	// множество уже рассмотренных вариантов
 	bool							flag = true, lim = false;
-	int								step = 0;
+	int								step = 0, max_size_q = 0;
 
 	if (!puzzle.validity) {
 		printf_("Головоломка не валидна", YELLOW);
@@ -386,24 +394,27 @@ void	uniform_cost(Puzzle puzzle) {
 			break ;
 		}
 	}
+	int	count_elem = q.size() - (q.size() ? 1 : 0);
+	
 	if (!flag)
 		printf_("Перебраны все варианты, но головоломка не решена", YELLOW);
 	if (lim)
 		printf_("Алгоритм сделал " + to_string(LIMIT) + " шагов, но не пришёл к решению, стоит выбрать другой метод =(", YELLOW);
 	if (q.size() != 0)
-		q.back().print();	// должна быть решённая головоломка
-	cout << "Элементов в очереди: " << q.size() - (q.size() ? 1 : 0) << endl;
+		q.back().print(mod_print);	// должна быть решённая головоломка
+	cout << "Элементов в очереди: " << count_elem << endl;
+	cout << "Максимальное кол-во элементов в очереди: " << ((max_size_q > count_elem) ? max_size_q : count_elem) << endl;
 	cout << "Рассмотренных головоломок: " << visited.size() << endl;
 	cout << "Шагов: " << step << endl;
 }
 //=================================================================================
 //=================================================================================
 // Метод решения, использующий жадный поиск (нифига не работает)
-void	greedy_algorithm(Puzzle puzzle, int mod) {
+void	greedy_algorithm(Puzzle puzzle, int mod, int mod_print = 0) {
 	queue<Puzzle>					q;
 	set<vector <vector <int> > >	visited;		// множество уже рассмотренных вариантов
 	bool							flag = true, lim = false;
-	int								step = 0;
+	int								step = 0, max_size_q = 0;
 
 	if (!puzzle.validity) {
 		printf_("Головоломка не валидна", YELLOW);
@@ -474,14 +485,16 @@ void	greedy_algorithm(Puzzle puzzle, int mod) {
 		//cout << q.size() << endl;
 		q.pop();
 	}
+	int	count_elem = q.size() - (q.size() ? 1 : 0);
 
 	if (!flag)
 		printf_("Жадный поиск зашёл в тупук, какая жалость, ничего не поделать", YELLOW);
 	if (lim)
 		printf_("Алгоритм сделал " + to_string(LIMIT) + " шагов, но не пришёл к решению, стоит выбрать другой метод =(", YELLOW);
 	if (q.size() != 0)
-		q.back().print();	// должна быть решённая головоломка
-	cout << "Элементов в очереди: " << 1 << endl;
+		q.back().print(mod_print);	// должна быть решённая головоломка
+	cout << "Элементов в очереди: " << count_elem << endl;
+	cout << "Максимальное кол-во элементов в очереди: " << ((max_size_q > count_elem) ? max_size_q : count_elem) << endl;
 	cout << "Рассмотренных головоломок: " << visited.size() << endl;
 	cout << "Шагов: " << step << endl;
 }
@@ -497,7 +510,7 @@ void	test(T numbers) {
 	cout << "=====================================" << endl;
 	cout << "-----------------Старт---------------" << endl;
 	puzzle.print();
-	printf_("-------------Грубая сила-------------", BLUE);
+	printf_("-------------Обход в ширину(все узлы ра)-------------", BLUE);
 	time = clock();
 	uniform_cost(puzzle);
 	time = clock() - time;
@@ -571,12 +584,12 @@ void	test(T numbers) {
 	greedy_algorithm(puzzle, 6);
 	time = clock() - time;
 	cout << "Время: " << (double)time/1000000 << " c." << endl;
-	*/
 	printf_("---Манхэттеновское расстояние + Линейные конфликты + Угловые элементы + Последний ход (жадный алгоритм)---", BLUE);
 	time = clock();
 	greedy_algorithm(puzzle, 7);
 	time = clock() - time;
 	cout << "Время: " << (double)time/1000000 << " c." << endl;
+	*/
 }
 //=================================================================================
 //=================================================================================
@@ -615,14 +628,16 @@ int main() {
 	// test(numbers8);
 	 //test(numbers9);
 	// test(numbers10);
-	 test(numbers11);
+	//test(numbers11);
+
 	// test(numbers12);
 	// test(numbers13);
 	//test(numbers14);
 	//test(numbers15);
 
-	//test("test.txt");		// тест из файла
+	test("test.txt");		// тест из файла
 	//test_user()			// тест дружелюбным интерфейсом
+	//heuristics(numbers6, 7);
 
 	//=========================================================================
 	// Тесты для проверки корректного просчёта эвристической функции (удалить в конце)

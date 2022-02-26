@@ -4,6 +4,7 @@
 #include <vector>
 #include <queue>
 #include <set>
+#include <unordered_set>
 #include <map>
 #include <algorithm>
 #include <fstream>
@@ -66,7 +67,7 @@ class Puzzle {
 			init(v);
 		}
 		// Печать головоломки на экран (если 1 аргумент true - то выведется порядок движений для решения головоломкм)
-		void			print(bool flag = false) const{
+		void			print(int mod_print = 0) const{
 			if (!validity) {
 				printf_("Головоломка не валидна", RED);
 				return ;
@@ -91,8 +92,7 @@ class Puzzle {
 				cout << "нет" << endl;
 
 			cout << "Всего передвижений: " << step << endl;
-			if (flag)
-				print_manual();
+			print_manual(mod_print);
 			answer ? printf_("Головоломка решена", GREEN) : printf_("Головоломка не решена", RED);
 		}
 		// Передвинуть пустой в нужном направлении (внимание, функция небезопасна, не всегда можно передвинуть!!!)
@@ -199,19 +199,56 @@ class Puzzle {
 			return (make_pair(-1, -1));
 		}
 		// Печать ходов передвижения пустого блока
-		void			print_manual() const {
-			for (int i = 0; i < step; i++) {
-				cout << setw(direction) << i+1 << ") ";
-				if (manual[i] == UP)
-					cout << "вверх" << endl;
-				else if (manual[i] == DOWN)
-					cout << "вниз" << endl;
-				else if (manual[i] == RIGHT)
-					cout << "вправо" << endl;
-				else if (manual[i] == LEFT)
-					cout << "влево" << endl;
-				else
-					cout << "нет" << endl;
+		void			print_manual(int mod_print) const {
+			if (mod_print == 0)
+				return ;
+			if (mod_print == 1) {
+				for (int i = 0; i < step; i++) {
+					cout << setw(direction) << i+1 << ") ";
+					if (manual[i] == UP)
+						cout << "вверх" << endl;
+					else if (manual[i] == DOWN)
+						cout << "вниз" << endl;
+					else if (manual[i] == RIGHT)
+						cout << "вправо" << endl;
+					else if (manual[i] == LEFT)
+						cout << "влево" << endl;
+					else
+						cout << "нет" << endl;
+				}
+				//================== Здесь нужно восстановить всю последовательность решения головоломки ======================
+				vector <vector< vector<int> > > mac;
+				mac.resize(step);
+				vector< vector<int> >	temp = box;
+				pair<int, int>			point_temp = point;
+
+				for (int i = step - 1; i>= 0; i--) {
+					if (manual[i] == DOWN)
+						swap(temp[point_temp.first][point_temp.second], temp[--point_temp.first][point_temp.second]);
+					else if (manual[i] == UP)
+						swap(temp[point_temp.first][point_temp.second], temp[++point_temp.first][point_temp.second]);
+					else if (manual[i] == LEFT)
+						swap(temp[point_temp.first][point_temp.second], temp[point_temp.first][++point_temp.second]);
+					else if (manual[i] == RIGHT)
+						swap(temp[point_temp.first][point_temp.second], temp[point_temp.first][--point_temp.second]);
+					mac[i] = temp;
+				}
+				// напечатаем все шаги
+				for (int k = 0; k < step; k++) {
+					cout << "=========== " << setw(distance) << k << " ===========" << endl;
+					for (int i = 0; i < size; i++) {
+						for (int j = 0; j < size; j++)
+							cout << setw(distance) << mac[k][i][j];
+						cout << endl;
+					}
+				}
+				// напечатаем решённую головоломку
+				cout << "=========== " << setw(distance) << step << " ===========" << endl;
+				for (int i = 0; i < size; i++) {
+					for (int j = 0; j < size; j++)
+						cout << setw(distance) << box[i][j];
+					cout << endl;
+				}
 			}
 		}
 };
