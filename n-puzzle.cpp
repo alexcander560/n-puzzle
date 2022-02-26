@@ -1,9 +1,5 @@
 #include "Puzzle.hpp"
 
-struct {
-	bool operator()(pair<int, Puzzle> first, pair<int, Puzzle> second) const { return (first.first < second.first); }
-} compare_elem;
-
 //=================================================================================
 // Считает значение для эвристика "Манхэттеновское расстояние"
 int		manhattan_distance(vector <vector <int> > &v) {
@@ -115,15 +111,17 @@ int		linear_conflicts_and_corner_tiles(vector <vector <int> > &v) {
 				if ((i == 2 && k == 2) || v[i][k] == 0)
 					continue ;
 				//cout << v[i][j] << " ? " << v[i][k] << endl;
-				if (v[i][j] > v[i][k]) {
-					if (i == 0 && j == 0)
-						up_left = true;
-					if (i == 0 && k == size-1)
-						up_right = true;
-					if (i == size-1 && j == 0)
-						down_left = true;
-					res += 2;
-				}
+				//if (((v[i][j] - 1) / size == i) && ((v[i][k]- 1) / size == i)) {
+					if (v[i][j] > v[i][k]) {
+						if (i == 0 && j == 0)
+							up_left = true;
+						if (i == 0 && k == size-1)
+							up_right = true;
+						if (i == size-1 && j == 0)
+							down_left = true;
+						res += 2;
+					}
+				//}
 			}
 		}
 	}
@@ -220,8 +218,24 @@ int		heuristics_count(vector <vector <int> > &v, int mod) {
 	else if (mod == 5)
 		res = manhattan_distance(v) + linear_conflicts(v);
 	else if (mod == 6)
-		res = manhattan_distance(v) + linear_conflicts_and_corner_tiles(v);
+		res = manhattan_distance(v) + corner_tiles(v);
 	else if (mod == 7)
+		res = manhattan_distance(v) + last_move(v);
+	else if (mod == 8)
+		res = manhattan_distance(v) + corner_tiles(v);
+	else if (mod == 9)
+		res = linear_conflicts_and_corner_tiles(v);
+	else if (mod == 10)
+		res = corner_tiles(v) + last_move(v);
+	else if (mod == 11)
+		res = manhattan_distance(v) + linear_conflicts_and_corner_tiles(v);
+	else if (mod == 12)
+		res = manhattan_distance(v) + linear_conflicts(v) + last_move(v);
+	else if (mod == 13)
+		res = manhattan_distance(v) + corner_tiles(v) + last_move(v);
+	else if (mod == 14)
+		res = linear_conflicts_and_corner_tiles(v) + last_move(v);
+	else if (mod == 15)
 		res = manhattan_distance(v) + linear_conflicts_and_corner_tiles(v) + last_move(v);
 
 	return (res);
@@ -408,189 +422,86 @@ void	uniform_cost(Puzzle puzzle, int mod_print = 0) {
 	cout << "Шагов: " << step << endl;
 }
 //=================================================================================
-//=================================================================================
-// Метод решения, использующий жадный поиск (нифига не работает)
-void	greedy_algorithm(Puzzle puzzle, int mod, int mod_print = 0) {
-	queue<Puzzle>					q;
-	set<vector <vector <int> > >	visited;		// множество уже рассмотренных вариантов
-	bool							flag = true, lim = false;
-	int								step = 0, max_size_q = 0;
-
-	if (!puzzle.validity) {
-		printf_("Головоломка не валидна", YELLOW);
-		return ;
-	}
-	if (puzzle.answer) {
-		printf_("Головоломка уже решена", YELLOW);
-		return ;
-	}
-
-	q.push(puzzle);
-	visited.insert(puzzle.box);
-
-	while (flag) {
-		vector<pair<int, Puzzle> > mac;
-
-		if (q.front().direction != DOWN && q.front().point.first != 0) {
-			Puzzle	temp = q.front();
-
-			step++;
-			temp.swapBlock(UP);
-			if (visited.insert(temp.box).second)
-				mac.push_back(make_pair(heuristics_count(temp.box, mod), temp));
-			if (temp.answer)
-				break ;
-		}
-		if (q.front().direction != UP && q.front().point.first != q.front().size - 1) {
-			Puzzle	temp = q.front();
-
-			step++;
-			temp.swapBlock(DOWN);
-			if (visited.insert(temp.box).second)
-				mac.push_back(make_pair(heuristics_count(temp.box, mod), temp));
-			if (temp.answer)
-				break ;
-		}
-		if (q.front().direction != LEFT && q.front().point.second != q.front().size - 1) {
-			Puzzle	temp = q.front();
-
-			step++;
-			temp.swapBlock(RIGHT);
-			if (visited.insert(temp.box).second)
-				mac.push_back(make_pair(heuristics_count(temp.box, mod), temp));
-			if (temp.answer)
-				break ;
-		}
-		if (q.front().direction != RIGHT && q.front().point.second != 0) {
-			Puzzle	temp = q.front();
-
-			step++;
-			temp.swapBlock(LEFT);
-			if (visited.insert(temp.box).second)
-				mac.push_back(make_pair(heuristics_count(temp.box, mod), temp));
-			if (temp.answer)
-				break ;
-		}
-		if (q.size() == 0)
-			flag = false;
-		if (step >= LIMIT) {
-			lim = true;
-			break ;
-		}
-		int min_cost = INT_MAX;
-		sort(mac.begin(), mac.end(), compare_elem);
-		//cout << mac.size() << endl;
-		for (int i = 0; i < mac.size(); i++)
-			q.push(mac[i].second);
-		//cout << q.size() << endl;
-		q.pop();
-	}
-	int	count_elem = q.size() - (q.size() ? 1 : 0);
-
-	if (!flag)
-		printf_("Жадный поиск зашёл в тупук, какая жалость, ничего не поделать", YELLOW);
-	if (lim)
-		printf_("Алгоритм сделал " + to_string(LIMIT) + " шагов, но не пришёл к решению, стоит выбрать другой метод =(", YELLOW);
-	if (q.size() != 0)
-		q.back().print(mod_print);	// должна быть решённая головоломка
-	cout << "Элементов в очереди: " << count_elem << endl;
-	cout << "Максимальное кол-во элементов в очереди: " << ((max_size_q > count_elem) ? max_size_q : count_elem) << endl;
-	cout << "Рассмотренных головоломок: " << visited.size() << endl;
-	cout << "Шагов: " << step << endl;
-}
-//=================================================================================
 // Запуск тестирование
 template <typename T>
-void	test(T numbers) {
+void	test_start(T numbers, int mod, int mod_print = 0) {
 	Puzzle			puzzle(numbers);
 	unsigned int	time;
 
 	cout << "=====================================" << endl;
 	cout << "=------------Тестируем--------------=" << endl;
 	cout << "=====================================" << endl;
-	cout << "-----------------Старт---------------" << endl;
 	puzzle.print();
-	printf_("-------------Обход в ширину(все узлы ра)-------------", BLUE);
 	time = clock();
-	uniform_cost(puzzle);
+	//========================================================================================================
+	if (mod == 0 || mod == -1) {
+		printf_("-------------Обход в ширину(все узлы равны)-------------", BLUE);
+		uniform_cost(puzzle, mod_print);
+	} //============================Основные================================================================
+	if (mod == 1 || mod == -1) {
+		printf_("------Манхэттеновское расстояние-----", BLUE);
+		heuristics(puzzle, 1, mod_print);
+	}
+	if (mod == 2 || mod == -1) {
+		printf_("----------Линейный конфликт----------", BLUE);
+		heuristics(puzzle, 2, mod_print);
+	}
+	if (mod == 3 || mod == -1) {
+		printf_("------------Угловые элементы-------------", BLUE);
+		heuristics(puzzle, 3, mod_print);
+	}
+	if (mod == 4 || mod == -1) {
+		printf_("------------Последний ход-------------", BLUE);
+		heuristics(puzzle, 4, mod_print);
+	} //============================Манхэттеновское расстояние + ?================================================================
+	if (mod == 5 || mod == -1) {
+		printf_("Манхэттеновское расстояние + Линейный конфликт", BLUE);
+		heuristics(puzzle, 5, mod_print);
+	}
+	if (mod == 6 || mod == -1) {
+		printf_("Манхэттеновское расстояние + Угловые элементы", BLUE);
+		heuristics(puzzle, 6, mod_print);
+	}
+	if (mod == 7 || mod == -1) {
+		printf_("Манхэттеновское расстояние + Последний ход", BLUE);
+		heuristics(puzzle, 7, mod_print);
+	} //============================Линейный конфликт + ?================================================================
+	if (mod == 8 || mod == -1) {
+		printf_("Линейный конфликт + Угловые элементы", BLUE);
+		heuristics(puzzle, 8, mod_print);
+	}
+	if (mod == 9 || mod == -1) {
+		printf_("Линейный конфликт + Последний ход", BLUE);
+		heuristics(puzzle, 9, mod_print);
+	}
+	if (mod == 10 || mod == -1) {
+		printf_("Угловые элементы + Последний ход", BLUE);
+		heuristics(puzzle, 10, mod_print);
+	} //========================================================================================================
+	if (mod == 11 || mod == -1) {
+		printf_("Манхэттеновское расстояние + Линейный конфликт + Угловые элементы", BLUE);
+		heuristics(puzzle, 11, mod_print);
+	}
+	if (mod == 12 || mod == -1) {
+		printf_("Манхэттеновское расстояние + Линейный конфликт + Последний ход", BLUE);
+		heuristics(puzzle, 12, mod_print);
+	}
+	if (mod == 13 || mod == -1) {
+		printf_("Манхэттеновское расстояние + Угловые элементы + Последний ход", BLUE);
+		heuristics(puzzle, 13, mod_print);
+	} //========================================================================================================
+	if (mod == 14 || mod == -1) {
+		printf_("Линейный конфликт + Угловые элементы + Последний ход", BLUE);
+		heuristics(puzzle, 14, mod_print);
+	} //========================================================================================================
+	if (mod == 15 || mod == -1) {
+		printf_("Манхэттеновское расстояние + Линейный конфликт + Угловые элементы + Последний ход", BLUE);
+		heuristics(puzzle, 15, mod_print);
+	} //========================================================================================================
 	time = clock() - time;
 	cout << "Время: " << (double)time/1000000 << " c." << endl;
-	printf_("------Манхэттеновское расстояние-----", BLUE);
-	time = clock();
-	heuristics(puzzle, 1);
-	time = clock() - time;
-	cout << "Время: " << (double)time/1000000 << " c." << endl;
-	printf_("------------Линейный конфликт--------", BLUE);
-	time = clock();
-	heuristics(puzzle, 2);
-	time = clock() - time;
-	cout << "Время: " << (double)time/1000000 << " c." << endl;
-	printf_("------------Угловые элементы-------------", BLUE);
-	time = clock();
-	heuristics(puzzle, 3);
-	time = clock() - time;
-	cout << "Время: " << (double)time/1000000 << " c." << endl;
-	printf_("------------Последний ход-------------", BLUE);
-	time = clock();
-	heuristics(puzzle, 4);
-	time = clock() - time;
-	cout << "Время: " << (double)time/1000000 << " c." << endl;
-	printf_("---Манхэттеновское расстояние + Линейный конфликт---", BLUE);
-	time = clock();
-	heuristics(puzzle, 5);
-	time = clock() - time;
-	cout << "Время: " << (double)time/1000000 << " c." << endl;
-	printf_("---Манхэттеновское расстояние + Линейные конфликты + Угловые элементы---", BLUE);
-	time = clock();
-	heuristics(puzzle, 6);
-	time = clock() - time;
-	cout << "Время: " << (double)time/1000000 << " c." << endl;
-	printf_("---Манхэттеновское расстояние + Линейные конфликты + Угловые элементы + Последний ход---", BLUE);
-	time = clock();
-	heuristics(puzzle, 7);
-	time = clock() - time;
-	cout << "Время: " << (double)time/1000000 << " c." << endl;
-	//===================================================================================================================
-	//===================================================================================================================
-	//===================================================================================================================
-	/*
-	printf_("------Манхэттеновское расстояние (жадный алгооитм)----", BLUE);
-	time = clock();
-	greedy_algorithm(puzzle, 1);
-	time = clock() - time;
-	cout << "Время: " << (double)time/1000000 << " c." << endl;
-	printf_("------------Линейный конфликт (жадный алгоритм)--------", BLUE);
-	time = clock();
-	greedy_algorithm(puzzle, 2);
-	time = clock() - time;
-	cout << "Время: " << (double)time/1000000 << " c." << endl;
-	printf_("------------Угловые элементы (жадный алгоритм)-------------", BLUE);
-	time = clock();
-	greedy_algorithm(puzzle, 3);
-	time = clock() - time;
-	cout << "Время: " << (double)time/1000000 << " c." << endl;
-	printf_("------------Последний ход (жадный алгоритм)-------------", BLUE);
-	time = clock();
-	greedy_algorithm(puzzle, 4);
-	time = clock() - time;
-	cout << "Время: " << (double)time/1000000 << " c." << endl;
-	printf_("---Манхэттеновское расстояние + Линейный конфликт (жадный алгоритм)---", BLUE);
-	time = clock();
-	greedy_algorithm(puzzle, 5);
-	time = clock() - time;
-	cout << "Время: " << (double)time/1000000 << " c." << endl;
-	printf_("---Манхэттеновское расстояние + Линейные конфликты + Угловые элементы (жадный алгоритм)---", BLUE);
-	time = clock();
-	greedy_algorithm(puzzle, 6);
-	time = clock() - time;
-	cout << "Время: " << (double)time/1000000 << " c." << endl;
-	printf_("---Манхэттеновское расстояние + Линейные конфликты + Угловые элементы + Последний ход (жадный алгоритм)---", BLUE);
-	time = clock();
-	greedy_algorithm(puzzle, 7);
-	time = clock() - time;
-	cout << "Время: " << (double)time/1000000 << " c." << endl;
-	*/
 }
+
 //=================================================================================
 //=================================================================================
 // Надо написать дружелюбный интерфейс для пользователя, что бы он мог запускать разные алгоритмы для решения задачи из файла
@@ -628,14 +539,14 @@ int main() {
 	// test(numbers8);
 	 //test(numbers9);
 	// test(numbers10);
-	//test(numbers11);
+	test_start(numbers11, -1);   //======================
 
 	// test(numbers12);
 	// test(numbers13);
 	//test(numbers14);
 	//test(numbers15);
 
-	test("test.txt");		// тест из файла
+	//test("test.txt");		// тест из файла
 	//test_user()			// тест дружелюбным интерфейсом
 	//heuristics(numbers6, 7);
 
@@ -653,8 +564,8 @@ int main() {
 	// v[2].push_back(7);
 	// v[2].push_back(8);
 	// v[2].push_back(0);
-	//linear_conflicts_and_corner_tiles(v);
-	//linear_conflicts(v);
+	// linear_conflicts_and_corner_tiles(v);
+	// linear_conflicts(v);
 	//last_move(v);
 
 	return (0);
