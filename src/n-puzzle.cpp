@@ -117,6 +117,15 @@ string get_string(void) {
 		exit(EXIT_FAILURE);
 	return (line);
 }
+bool file_exists(const string &filename)
+{
+	bool is_exists;
+
+	ifstream file(filename);
+	is_exists = file.is_open();
+	file.close();
+	return (is_exists);
+}
 //=================================================================================
 //=================================================================================
 // Надо написать дружелюбный интерфейс для пользователя, что бы он мог запускать разные алгоритмы для решения задачи из файла
@@ -136,6 +145,11 @@ void	test_user() {
 		from_file = true;
 		printf_("Введи путь до файла", YELLOW);
 		filename = get_string();
+		if (!file_exists(filename))
+		{
+			printf_("Невозможно открыть файл. Выход из программы = (", RED);
+			exit(EXIT_FAILURE);
+		}
 	}
 	else if (line == "2") {
 		from_file = false;
