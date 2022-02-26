@@ -119,7 +119,7 @@ string get_string(void) {
 // Надо написать дружелюбный интерфейс для пользователя, что бы он мог запускать разные алгоритмы для решения задачи из файла
 // ИЛИ мог ввести данные сам!!!
 void	test_user() {
-	int map_size;
+	int map_size, mode, mode_print;
 	bool from_file;
 	string line, filename;
 	vector<int> numbers;
@@ -170,12 +170,17 @@ void	test_user() {
 	printf_("'13' - манхэттеновское расстояние + угловые элементы + последний ход", YELLOW);
 	printf_("'14' - линейный конфликт + угловые элементы + последний ход", YELLOW);
 	printf_("'15' - манхэттеновское расстояние + линейный конфликт + угловые элементы + последний ход", YELLOW);
+	mode = get_number();
 
+	printf_("Хотите ли вы видеть процесс решения головоломки?", YELLOW);
+	printf_("'0' - нет", YELLOW);
+	printf_("'1' - да", YELLOW);
+	mode_print = get_number();
 
 	if (from_file)
-		test_start(filename, get_number());
+		test_start(filename, mode, mode_print);
 	else
-		test_start(numbers, get_number());
+		test_start(numbers, mode, mode_print);
 
 }
 //=================================================================================
