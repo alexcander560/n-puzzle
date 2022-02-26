@@ -173,12 +173,12 @@ void	test_user() {
 	printf_("'13' - манхэттеновское расстояние + угловые элементы + последний ход", YELLOW);
 	printf_("'14' - линейный конфликт + угловые элементы + последний ход", YELLOW);
 	printf_("'15' - манхэттеновское расстояние + линейный конфликт + угловые элементы + последний ход", YELLOW);
-	mode = get_number();
+	mode = get_number(-1, 15);
 
 	printf_("Хотите ли вы видеть процесс решения головоломки?", YELLOW);
 	printf_("'0' - нет", YELLOW);
 	printf_("'1' - да", YELLOW);
-	mode_print = get_number();
+	mode_print = get_number(0, 1);
 
 	if (from_file)
 		test_start(filename, mode, mode_print);

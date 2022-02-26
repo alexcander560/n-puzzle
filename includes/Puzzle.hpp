@@ -65,15 +65,19 @@ class Puzzle {
 			int			count, temp;
 			vector<int>	v;
 
-			getline(file, str);
-			file >> count;
-			count *= count;
-			for (int i = 0; i < count; i++) {
-				file >> temp;
-				v.push_back(temp);
+			if (!file.is_open()) {
+				getline(file, str);
+				file >> count;
+				count *= count;
+				for (int i = 0; i < count; i++) {
+					file >> temp;
+					v.push_back(temp);
+				}
+				file.close();
+				init(v);
 			}
-			file.close();
-			init(v);
+			else
+				printf_("Не могу открыть файл", RED);
 		}
 		// Печать головоломки на экран (если 1 аргумент true - то выведется порядок движений для решения головоломкм)
 		void			print(int mod_print = 0) const{
