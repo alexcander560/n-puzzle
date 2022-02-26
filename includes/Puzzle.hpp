@@ -35,8 +35,8 @@ using namespace std;
 
 class Puzzle;
 
-void	printf_(string str, string color) { cout << color + str + DEFAULT"\n"; }
-void	printf_noendl_(string str, string color) { cout << color + str + DEFAULT; }
+void	printf_(string str, string color);
+void	printf_noendl_(string str, string color);
 
 void	uniform_cost(Puzzle puzzle, int mod_print = 0);
 int		heuristics_count(vector <vector <int> > &v, int mod);

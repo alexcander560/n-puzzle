@@ -1,5 +1,8 @@
 #include "../includes/Puzzle.hpp"
 
+void	printf_(string str, string color) { cout << color + str + DEFAULT"\n"; }
+void	printf_noendl_(string str, string color) { cout << color + str + DEFAULT; }
+
 // Запуск тестирование
 template <typename T>
 void	test_start(T numbers, int mod, int mod_print = 0) {
