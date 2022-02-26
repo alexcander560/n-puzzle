@@ -1,1 +1,1 @@
-clang++ -std=c++17 n-puzzle.cpp && ./a.out
+clang++ -std=c++17 *.cpp && ./a.out
