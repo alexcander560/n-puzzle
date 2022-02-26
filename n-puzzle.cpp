@@ -501,13 +501,112 @@ void	test_start(T numbers, int mod, int mod_print = 0) {
 	time = clock() - time;
 	cout << "Время: " << (double)time/1000000 << " c." << endl;
 }
+//=================================================================================
+// Безопасно получить число из консоли
+int get_number(int min_num = INT_MIN, int max_num = INT_MAX) {
+	int number;
+	string line;
 
+	getline(cin, line);
+	if (cin.eof())
+		exit(EXIT_FAILURE);
+	try {
+		number = stoi(line);
+		if (number < min_num)
+		{
+			printf_("Значение слишком маленькое. Выход из программы = (", RED);
+			exit(EXIT_FAILURE);
+		}
+		if (number > max_num)
+		{
+			printf_("Значение слишком большое. Выход из программы = (", RED);
+			exit(EXIT_FAILURE);
+		}
+	} catch (exception &e) {
+		printf_("Введено некорректное значение. Выход из программы = (", RED);
+		exit(EXIT_FAILURE);
+	}
+	return (number);
+}
+//=================================================================================
+// Безопасно получить строку из консоли
+string get_string(void) {
+	string line;
+
+	getline(cin, line);
+	if (cin.eof())
+		exit(EXIT_FAILURE);
+	return (line);
+}
 //=================================================================================
 //=================================================================================
 // Надо написать дружелюбный интерфейс для пользователя, что бы он мог запускать разные алгоритмы для решения задачи из файла
 // ИЛИ мог ввести данные сам!!!
 void	test_user() {
-	printf_("Здесь пока нчиего нет = (", YELLOW);
+	int map_size;
+	bool from_file;
+	string line, filename;
+	vector<int> numbers;
+
+	printf_("Выбери режим для загрузки карты игры", YELLOW);
+	printf_("'1' - чтение из файла", YELLOW);
+	printf_("'2' - чтение из консоли", YELLOW);
+
+	line = get_string();
+	if (line == "1") {
+		from_file = true;
+		printf_("Введи путь до файла", YELLOW);
+		filename = get_string();
+	}
+	else if (line == "2") {
+		from_file = false;
+		printf_("Введите размер карты", YELLOW);
+		map_size = get_number(1, 10);
+		numbers.resize(map_size * map_size);
+		for (int i = 0; i < map_size * map_size; i++) {
+			printf_noendl_("Введите число ", YELLOW);
+			printf_noendl_(to_string(i + 1), YELLOW);
+			printf_noendl_(" из ", YELLOW);
+			printf_(to_string(map_size * map_size), YELLOW);
+			numbers[i] = (get_number(0, 99));
+		}
+	}
+	else
+	{
+		printf_("Введено некорректное значение. Выход из программы = (", RED);
+		exit(EXIT_FAILURE);
+	}
+
+//	for (int i : numbers)
+//		cout << i << " ";
+//	cout << endl;
+
+
+	printf_("Какую функцию вы хотите использовать?", YELLOW);
+	printf_("'-1' - запустить все алгоритмы", YELLOW);
+	printf_("'0' - обход в ширину (все узлы равны)", YELLOW);
+	printf_("'1' - манхэттеновское расстояние", YELLOW);
+	printf_("'2' - линейный конфликт", YELLOW);
+	printf_("'3' - угловые элементы", YELLOW);
+	printf_("'4' - последний ход", YELLOW);
+	printf_("'5' - манхэттеновское расстояние + линейный конфликт", YELLOW);
+	printf_("'6' - манхэттеновское расстояние + угловые элементы", YELLOW);
+	printf_("'7' - манхэттеновское расстояние + последний ход", YELLOW);
+	printf_("'8' - линейный конфликт + угловые элементы", YELLOW);
+	printf_("'9' - линейный конфликт + последний ход", YELLOW);
+	printf_("'10' - угловые элементы + последний ход", YELLOW);
+	printf_("'11' - манхэттеновское расстояние + линейный конфликт + угловые элементы", YELLOW);
+	printf_("'12' - манхэттеновское расстояние + линейный конфликт + последний ход", YELLOW);
+	printf_("'13' - манхэттеновское расстояние + угловые элементы + последний ход", YELLOW);
+	printf_("'14' - линейный конфликт + угловые элементы + последний ход", YELLOW);
+	printf_("'15' - манхэттеновское расстояние + линейный конфликт + угловые элементы + последний ход", YELLOW);
+
+
+	if (from_file)
+		test_start(filename, get_number());
+	else
+		test_start(numbers, get_number());
+
 }
 //=================================================================================
 //=================================================================================
@@ -539,7 +638,7 @@ int main() {
 	// test(numbers8);
 	 //test(numbers9);
 	// test(numbers10);
-	test_start(numbers11, -1);   //======================
+	//test_start(numbers11, -1);   //======================
 
 	// test(numbers12);
 	// test(numbers13);
@@ -547,7 +646,7 @@ int main() {
 	//test(numbers15);
 
 	//test("test.txt");		// тест из файла
-	//test_user()			// тест дружелюбным интерфейсом
+	test_user();			// тест дружелюбным интерфейсом
 	//heuristics(numbers6, 7);
 
 	//=========================================================================
