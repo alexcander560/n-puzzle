@@ -188,7 +188,6 @@ class Puzzle {
 						if (box[i][j] == 0)
 							return ((size - i) & 1 ? !(count & 1) : (count & 1));
 			}
-
 			return (count % 2 == 0);
 		}
 		// Поиск координат пустого блока

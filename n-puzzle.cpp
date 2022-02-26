@@ -1,5 +1,9 @@
 #include "Puzzle.hpp"
 
+struct {
+	bool operator()(pair<int, Puzzle> first, pair<int, Puzzle> second) const { return (first.first < second.first); }
+} compare_elem;
+
 //=================================================================================
 // Считает значение для эвристика "Манхэттеновское расстояние"
 int		manhattan_distance(vector <vector <int> > &v) {
@@ -313,7 +317,7 @@ void	heuristics(Puzzle puzzle, int mod) {
 }
 //=================================================================================
 //=================================================================================
-// Метод решения перебором
+// Метод решения обходом в ширину (все узлы имеют одинаковый вес и равноценны между собой)
 void	uniform_cost(Puzzle puzzle) {
 	queue<Puzzle>					q;			// очередь из вариантов головоломок, требующих рассмотрения
 	set<vector <vector <int> > >	visited;	// множество уже рассмотренных вариантов
@@ -343,7 +347,6 @@ void	uniform_cost(Puzzle puzzle) {
 				q.push(temp);
 			if (temp.answer)
 				break ;
-			temp.swapBlock(DOWN);
 		}
 		if (q.front().direction != UP && q.front().point.first != q.front().size - 1) {
 			Puzzle	temp = q.front();
@@ -394,7 +397,95 @@ void	uniform_cost(Puzzle puzzle) {
 	cout << "Шагов: " << step << endl;
 }
 //=================================================================================
+//=================================================================================
+// Метод решения, использующий жадный поиск (нифига не работает)
+void	greedy_algorithm(Puzzle puzzle, int mod) {
+	queue<Puzzle>					q;
+	set<vector <vector <int> > >	visited;		// множество уже рассмотренных вариантов
+	bool							flag = true, lim = false;
+	int								step = 0;
 
+	if (!puzzle.validity) {
+		printf_("Головоломка не валидна", YELLOW);
+		return ;
+	}
+	if (puzzle.answer) {
+		printf_("Головоломка уже решена", YELLOW);
+		return ;
+	}
+
+	q.push(puzzle);
+	visited.insert(puzzle.box);
+
+	while (flag) {
+		vector<pair<int, Puzzle> > mac;
+
+		if (q.front().direction != DOWN && q.front().point.first != 0) {
+			Puzzle	temp = q.front();
+
+			step++;
+			temp.swapBlock(UP);
+			if (visited.insert(temp.box).second)
+				mac.push_back(make_pair(heuristics_count(temp.box, mod), temp));
+			if (temp.answer)
+				break ;
+		}
+		if (q.front().direction != UP && q.front().point.first != q.front().size - 1) {
+			Puzzle	temp = q.front();
+
+			step++;
+			temp.swapBlock(DOWN);
+			if (visited.insert(temp.box).second)
+				mac.push_back(make_pair(heuristics_count(temp.box, mod), temp));
+			if (temp.answer)
+				break ;
+		}
+		if (q.front().direction != LEFT && q.front().point.second != q.front().size - 1) {
+			Puzzle	temp = q.front();
+
+			step++;
+			temp.swapBlock(RIGHT);
+			if (visited.insert(temp.box).second)
+				mac.push_back(make_pair(heuristics_count(temp.box, mod), temp));
+			if (temp.answer)
+				break ;
+		}
+		if (q.front().direction != RIGHT && q.front().point.second != 0) {
+			Puzzle	temp = q.front();
+
+			step++;
+			temp.swapBlock(LEFT);
+			if (visited.insert(temp.box).second)
+				mac.push_back(make_pair(heuristics_count(temp.box, mod), temp));
+			if (temp.answer)
+				break ;
+		}
+		if (q.size() == 0)
+			flag = false;
+		if (step >= LIMIT) {
+			lim = true;
+			break ;
+		}
+		int min_cost = INT_MAX;
+		sort(mac.begin(), mac.end(), compare_elem);
+		//cout << mac.size() << endl;
+		for (int i = 0; i < mac.size(); i++)
+			q.push(mac[i].second);
+		//cout << q.size() << endl;
+		q.pop();
+	}
+
+	if (!flag)
+		printf_("Жадный поиск зашёл в тупук, какая жалость, ничего не поделать", YELLOW);
+	if (lim)
+		printf_("Алгоритм сделал " + to_string(LIMIT) + " шагов, но не пришёл к решению, стоит выбрать другой метод =(", YELLOW);
+	if (q.size() != 0)
+		q.back().print();	// должна быть решённая головоломка
+	cout << "Элементов в очереди: " << 1 << endl;
+	cout << "Рассмотренных головоломок: " << visited.size() << endl;
+	cout << "Шагов: " << step << endl;
+}
+//=================================================================================
 // Запуск тестирование
 template <typename T>
 void	test(T numbers) {
@@ -446,8 +537,56 @@ void	test(T numbers) {
 	heuristics(puzzle, 7);
 	time = clock() - time;
 	cout << "Время: " << (double)time/1000000 << " c." << endl;
+	//===================================================================================================================
+	//===================================================================================================================
+	//===================================================================================================================
+	/*
+	printf_("------Манхэттеновское расстояние (жадный алгооитм)----", BLUE);
+	time = clock();
+	greedy_algorithm(puzzle, 1);
+	time = clock() - time;
+	cout << "Время: " << (double)time/1000000 << " c." << endl;
+	printf_("------------Линейный конфликт (жадный алгоритм)--------", BLUE);
+	time = clock();
+	greedy_algorithm(puzzle, 2);
+	time = clock() - time;
+	cout << "Время: " << (double)time/1000000 << " c." << endl;
+	printf_("------------Угловые элементы (жадный алгоритм)-------------", BLUE);
+	time = clock();
+	greedy_algorithm(puzzle, 3);
+	time = clock() - time;
+	cout << "Время: " << (double)time/1000000 << " c." << endl;
+	printf_("------------Последний ход (жадный алгоритм)-------------", BLUE);
+	time = clock();
+	greedy_algorithm(puzzle, 4);
+	time = clock() - time;
+	cout << "Время: " << (double)time/1000000 << " c." << endl;
+	printf_("---Манхэттеновское расстояние + Линейный конфликт (жадный алгоритм)---", BLUE);
+	time = clock();
+	greedy_algorithm(puzzle, 5);
+	time = clock() - time;
+	cout << "Время: " << (double)time/1000000 << " c." << endl;
+	printf_("---Манхэттеновское расстояние + Линейные конфликты + Угловые элементы (жадный алгоритм)---", BLUE);
+	time = clock();
+	greedy_algorithm(puzzle, 6);
+	time = clock() - time;
+	cout << "Время: " << (double)time/1000000 << " c." << endl;
+	*/
+	printf_("---Манхэттеновское расстояние + Линейные конфликты + Угловые элементы + Последний ход (жадный алгоритм)---", BLUE);
+	time = clock();
+	greedy_algorithm(puzzle, 7);
+	time = clock() - time;
+	cout << "Время: " << (double)time/1000000 << " c." << endl;
 }
-
+//=================================================================================
+//=================================================================================
+// Надо написать дружелюбный интерфейс для пользователя, что бы он мог запускать разные алгоритмы для решения задачи из файла
+// ИЛИ мог ввести данные сам!!!
+void	test_user() {
+	printf_("Здесь пока нчиего нет = (", YELLOW);
+}
+//=================================================================================
+//=================================================================================
 int main() {
 	// https://metaschool.ru/pub/games/puzzle15/puzzle15.php	// отсюда можно взять головоломки
 	vector<int> numbers1 = {3, 8, 5, 2, 7, 6, 4, 1};		// не валидна
@@ -476,14 +615,18 @@ int main() {
 	// test(numbers8);
 	 //test(numbers9);
 	// test(numbers10);
-	// test(numbers11);
+	 test(numbers11);
 	// test(numbers12);
 	// test(numbers13);
 	//test(numbers14);
 	//test(numbers15);
 
-	test("test.txt");
+	//test("test.txt");		// тест из файла
+	//test_user()			// тест дружелюбным интерфейсом
 
+	//=========================================================================
+	// Тесты для проверки корректного просчёта эвристической функции (удалить в конце)
+	//=========================================================================
 	// vector< vector <int> > v;
 	// v.resize(3);
 	// v[0].push_back(1);
