@@ -65,7 +65,7 @@ class Puzzle {
 			int			count, temp;
 			vector<int>	v;
 
-			if (!file.is_open()) {
+			if (file.is_open()) {
 				getline(file, str);
 				file >> count;
 				count *= count;
