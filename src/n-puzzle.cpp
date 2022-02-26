@@ -1,4 +1,4 @@
-#include "Puzzle.hpp"
+#include "../includes/Puzzle.hpp"
 
 // Запуск тестирование
 template <typename T>

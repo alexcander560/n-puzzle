@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <iomanip>
 #include <cmath>
@@ -31,7 +33,14 @@ using namespace std;
 
 #define clear() printf("\033[H\033[J")
 
+class Puzzle;
+
 void	printf_(string str, string color) { cout << color + str + DEFAULT"\n"; }
+void	printf_noendl_(string str, string color) { cout << color + str + DEFAULT; }
+
+void	uniform_cost(Puzzle puzzle, int mod_print = 0);
+int		heuristics_count(vector <vector <int> > &v, int mod);
+void	heuristics(Puzzle puzzle, int mod, int mod_print = 0);
 
 class Puzzle {
 	public:

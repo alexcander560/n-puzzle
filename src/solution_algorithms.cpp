@@ -1,8 +1,8 @@
-#include "Puzzle.hpp"
+#include "../includes/Puzzle.hpp"
 
 //=================================================================================
 // Метод, использующий эвристику
-void	heuristics(Puzzle puzzle, int mod, int mod_print = 0) {
+void	heuristics(Puzzle puzzle, int mod, int mod_print) {
 	multimap<int, Puzzle>			q;			// очередь из вариантов головоломок, требующих рассмотрения
 	set<vector<vector <int> > >	visited;		// множество уже рассмотренных вариантов
 	bool							flag = true, lim = false;
@@ -18,7 +18,7 @@ void	heuristics(Puzzle puzzle, int mod, int mod_print = 0) {
 		return ;
 	}
 
-	q.insert(make_pair(linear_conflicts(puzzle.box), puzzle));
+	q.insert(make_pair(heuristics_count(puzzle.box, mod), puzzle));
 	visited.insert(puzzle.box);
 
 	while (flag) {
@@ -99,7 +99,7 @@ void	heuristics(Puzzle puzzle, int mod, int mod_print = 0) {
 //=================================================================================
 //=================================================================================
 // Метод решения обходом в ширину (все узлы имеют одинаковый вес и равноценны между собой)
-void	uniform_cost(Puzzle puzzle, int mod_print = 0) {
+void	uniform_cost(Puzzle puzzle, int mod_print) {
 	queue<Puzzle>					q;			// очередь из вариантов головоломок, требующих рассмотрения
 	set<vector <vector <int> > >	visited;	// множество уже рассмотренных вариантов
 	bool							flag = true, lim = false;
