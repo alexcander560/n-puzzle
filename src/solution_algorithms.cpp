@@ -5,9 +5,16 @@
 void	heuristics(Puzzle puzzle, int mod, int mod_print) {
 	multimap<int, Puzzle>			q;			// очередь из вариантов головоломок, требующих рассмотрения
 	set<vector<vector <int> > >	visited;		// множество уже рассмотренных вариантов
-	bool							flag = true, lim = false;
+	bool							check, flag = true, lim = false;
 	int								step = 0, size = puzzle.size - 1, max_size_q = 0;
 	Puzzle							res = puzzle;
+	set< tuple<int, int, bool, bool> > const commands
+			{
+					make_tuple(DOWN, UP, true, false),
+					make_tuple(UP, DOWN, true, true),
+					make_tuple(LEFT, RIGHT, false, true),
+					make_tuple(RIGHT, LEFT, false, false)
+			};
 
 	if (!puzzle.validity) {
 		printf_("Головоломка не валидна", YELLOW);
@@ -25,54 +32,23 @@ void	heuristics(Puzzle puzzle, int mod, int mod_print) {
 		multimap<int, Puzzle>::iterator it = q.begin();
 
 		//cout << "step= " << step << endl;
-		if (it->second.direction != DOWN && it->second.point.first != 0) {
-			Puzzle	temp = it->second;
+		for (auto command : commands)
+		{
+			check = (get<2>(command) ? it->second.point.first : it->second.point.second) != (get<3>(command) ? size : 0);
+			if (it->second.direction != get<0>(command) && check) {
+				Puzzle	temp = it->second;
 
-			step++;
-			temp.swapBlock(UP);
-			if (visited.insert(temp.box).second)
-				q.insert(make_pair(heuristics_count(temp.box, mod), temp));
-			if (temp.answer) {
-				res = temp;
-				break ;
+				step++;
+				temp.swapBlock(get<1>(command));
+				if (visited.insert(temp.box).second)
+					q.insert(make_pair(heuristics_count(temp.box, mod), temp));
+				if (temp.answer) {
+					res = temp;
+					goto ready;
+				}
 			}
 		}
-		if (it->second.direction != UP && it->second.point.first != size) {
-			Puzzle	temp = it->second;
 
-			step++;
-			temp.swapBlock(DOWN);
-			if (visited.insert(temp.box).second)
-				q.insert(make_pair(heuristics_count(temp.box, mod), temp));
-			if (temp.answer) {
-				res = temp;
-				break ;
-			}
-		}
-		if (it->second.direction != LEFT && it->second.point.second != size) {
-			Puzzle	temp = it->second;
-
-			step++;
-			temp.swapBlock(RIGHT);
-			if (visited.insert(temp.box).second)
-				q.insert(make_pair(heuristics_count(temp.box, mod), temp));
-			if (temp.answer) {
-				res = temp;
-				break ;
-			}
-		}
-		if (it->second.direction != RIGHT && it->second.point.second != 0) {
-			Puzzle	temp = it->second;
-
-			step++;
-			temp.swapBlock(LEFT);
-			if (visited.insert(temp.box).second)
-				q.insert(make_pair(heuristics_count(temp.box, mod), temp));
-			if (temp.answer) {
-				res = temp;
-				break ;
-			}
-		}
 		q.erase(it);
 		if (q.size() == 0)
 			flag = false;
@@ -83,6 +59,7 @@ void	heuristics(Puzzle puzzle, int mod, int mod_print) {
 		if (q.size() > max_size_q)
 			max_size_q = q.size();
 	}
+ready:
 	int	count_elem = q.size() - (q.size() ? 1 : 0);
 
 	if (!flag)
