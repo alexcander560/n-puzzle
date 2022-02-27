@@ -3,6 +3,13 @@
 void	printf_(string str, string color) { cout << color + str + DEFAULT"\n"; }
 void	printf_noendl_(string str, string color) { cout << color + str + DEFAULT; }
 
+void timeSetting(unsigned int &time)
+{
+	time = clock() - time;
+	cout << "Время: " << (double)time/1000000 << " c." << endl;
+	time = clock();
+}
+
 // Запуск тестирование
 template <typename T>
 void	test_start(T numbers, int mod, int mod_print = 0) {
@@ -42,19 +49,20 @@ void	test_start(T numbers, int mod, int mod_print = 0) {
 			{
 				printf_(methods[i], BLUE);
 				heuristics(puzzle, i, mod_print);
+				timeSetting(time);
 			}
 		case 0:
 			printf_(methods[0], BLUE);
 			uniform_cost(puzzle, mod_print);
+			timeSetting(time);
 			break ;
 		default:
 			printf_(methods[mod], BLUE);
 			heuristics(puzzle, mod, mod_print);
+			timeSetting(time);
 			break ;
 	}
 
-	time = clock() - time;
-	cout << "Время: " << (double)time/1000000 << " c." << endl;
 }
 //=================================================================================
 // Безопасно получить число из консоли
