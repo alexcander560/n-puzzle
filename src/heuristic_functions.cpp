@@ -195,6 +195,7 @@ int		last_move(vector <vector <int> > &v) {
 	//cout << res << endl;
 	return (res);
 }
+
 //=================================================================================
 //=================================================================================
 // Считает вес для головоломки с помощью эвристичесих функций
@@ -205,40 +206,31 @@ int		last_move(vector <vector <int> > &v) {
 // 5 - "Манхэттеновское расстояние" + "Линейные конфликты"
 // 6 - "Манхэттеновское расстояние" + "Линейные конфликты" + "Угловые элементы"
 // 7 - "Манхэттеновское расстояние" + "Линейные конфликты" + "Угловые элементы" + "Последнее перемещение"
+
+vector< vector< function<int (vector <vector <int> > &v)> > > const functions
+{
+	{manhattan_distance},
+	{linear_conflicts},
+	{corner_tiles},
+	{last_move},
+	{manhattan_distance, linear_conflicts},
+	{manhattan_distance, corner_tiles},
+	{manhattan_distance, last_move},
+	{manhattan_distance, corner_tiles},
+	{linear_conflicts_and_corner_tiles},
+	{corner_tiles, last_move},
+	{manhattan_distance, linear_conflicts_and_corner_tiles},
+	{manhattan_distance, linear_conflicts, last_move},
+	{manhattan_distance, corner_tiles, last_move},
+	{linear_conflicts_and_corner_tiles, last_move},
+	{manhattan_distance, linear_conflicts_and_corner_tiles, last_move}
+};
+
 int		heuristics_count(vector <vector <int> > &v, int mod) {
 	int	res = 0;
 
-	if (mod == 1)
-		res = manhattan_distance(v);
-	else if (mod == 2)
-		res = linear_conflicts(v);
-	else if (mod == 3)
-		res = corner_tiles(v);
-	else if (mod == 4)
-		res = last_move(v);
-	else if (mod == 5)
-		res = manhattan_distance(v) + linear_conflicts(v);
-	else if (mod == 6)
-		res = manhattan_distance(v) + corner_tiles(v);
-	else if (mod == 7)
-		res = manhattan_distance(v) + last_move(v);
-	else if (mod == 8)
-		res = manhattan_distance(v) + corner_tiles(v);
-	else if (mod == 9)
-		res = linear_conflicts_and_corner_tiles(v);
-	else if (mod == 10)
-		res = corner_tiles(v) + last_move(v);
-	else if (mod == 11)
-		res = manhattan_distance(v) + linear_conflicts_and_corner_tiles(v);
-	else if (mod == 12)
-		res = manhattan_distance(v) + linear_conflicts(v) + last_move(v);
-	else if (mod == 13)
-		res = manhattan_distance(v) + corner_tiles(v) + last_move(v);
-	else if (mod == 14)
-		res = linear_conflicts_and_corner_tiles(v) + last_move(v);
-	else if (mod == 15)
-		res = manhattan_distance(v) + linear_conflicts_and_corner_tiles(v) + last_move(v);
-
+	for (auto functions_current : functions[mod - 1])
+		res += functions_current(v);
 	return (res);
 }
 //=================================================================================
