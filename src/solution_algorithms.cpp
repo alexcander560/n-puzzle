@@ -8,13 +8,6 @@ void	heuristics(Puzzle puzzle, int mod, int mod_print) {
 	bool							check, flag = true, lim = false;
 	int								step = 0, size = puzzle.size - 1, max_size_q = 0;
 	Puzzle							res = puzzle;
-	set< tuple<int, int, bool, bool> > const commands
-			{
-					make_tuple(DOWN, UP, true, false),
-					make_tuple(UP, DOWN, true, true),
-					make_tuple(LEFT, RIGHT, false, true),
-					make_tuple(RIGHT, LEFT, false, false)
-			};
 
 	if (!puzzle.validity) {
 		printf_("Головоломка не валидна", YELLOW);
@@ -32,8 +25,7 @@ void	heuristics(Puzzle puzzle, int mod, int mod_print) {
 		multimap<int, Puzzle>::iterator it = q.begin();
 
 		//cout << "step= " << step << endl;
-		for (auto command : commands)
-		{
+		for (auto command : commands) {
 			check = (get<2>(command) ? it->second.point.first : it->second.point.second) != (get<3>(command) ? size : 0);
 			if (it->second.direction != get<0>(command) && check) {
 				Puzzle	temp = it->second;
@@ -79,7 +71,7 @@ ready:
 void	uniform_cost(Puzzle puzzle, int mod_print) {
 	queue<Puzzle>					q;			// очередь из вариантов головоломок, требующих рассмотрения
 	set<vector <vector <int> > >	visited;	// множество уже рассмотренных вариантов
-	bool							flag = true, lim = false;
+	bool							check, flag = true, lim = false;
 	int								step = 0, max_size_q = 0;
 
 	if (!puzzle.validity) {
@@ -96,45 +88,18 @@ void	uniform_cost(Puzzle puzzle, int mod_print) {
 
 	while (flag) {
 		//cout << "step= " << step << endl;
-		if (q.front().direction != DOWN && q.front().point.first != 0) {
-			Puzzle	temp = q.front();
+		for (auto command : commands) {
+			check = (get<2>(command) ? q.front().point.first : q.front().point.second) != (get<3>(command) ? q.front().size - 1 : 0);
+			if (q.front().direction != get<0>(command) && check) {
+				Puzzle	temp = q.front();
 
-			step++;
-			temp.swapBlock(UP);
-			if (visited.insert(temp.box).second)
-				q.push(temp);
-			if (temp.answer)
-				break ;
-		}
-		if (q.front().direction != UP && q.front().point.first != q.front().size - 1) {
-			Puzzle	temp = q.front();
-
-			step++;
-			temp.swapBlock(DOWN);
-			if (visited.insert(temp.box).second)
-				q.push(temp);
-			if (temp.answer)
-				break ;
-		}
-		if (q.front().direction != LEFT && q.front().point.second != q.front().size - 1) {
-			Puzzle	temp = q.front();
-
-			step++;
-			temp.swapBlock(RIGHT);
-			if (visited.insert(temp.box).second)
-				q.push(temp);
-			if (temp.answer)
-				break ;
-		}
-		if (q.front().direction != RIGHT && q.front().point.second != 0) {
-			Puzzle	temp = q.front();
-
-			step++;
-			temp.swapBlock(LEFT);
-			if (visited.insert(temp.box).second)
-				q.push(temp);
-			if (temp.answer)
-				break ;
+				step++;
+				temp.swapBlock(get<1>(command));
+				if (visited.insert(temp.box).second)
+					q.push(temp);
+				if (temp.answer)
+					goto ready;
+			}
 		}
 		q.pop();
 		if (q.size() == 0)
@@ -144,6 +109,7 @@ void	uniform_cost(Puzzle puzzle, int mod_print) {
 			break ;
 		}
 	}
+ready:
 	int	count_elem = q.size() - (q.size() ? 1 : 0);
 	
 	if (!flag)
