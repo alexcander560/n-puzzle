@@ -3,7 +3,7 @@
 void	printf_(string str, string color) { cout << color + str + DEFAULT"\n"; }
 void	printf_noendl_(string str, string color) { cout << color + str + DEFAULT; }
 
-void timeSetting(unsigned int &time)
+void	timeSetting(unsigned int &time)
 {
 	time = clock() - time;
 	cout << "Время: " << (double)time/1000000 << " c." << endl;
@@ -18,7 +18,7 @@ void	test_start(T numbers, int mod, int mod_print = 0) {
 
 	map<int, string> methods
 	{
-		{0, "-------------Обход в ширину(все узлы равны)-------------"},
+		{0, "-------------Все узлы равны-------------"},
 		{1, "------Манхэттеновское расстояние-----"},
 		{2, "----------Линейный конфликт----------"},
 		{3, "------------Угловые элементы-------------"},
@@ -66,7 +66,7 @@ void	test_start(T numbers, int mod, int mod_print = 0) {
 }
 //=================================================================================
 // Безопасно получить число из консоли
-int get_number(int min_num = INT_MIN, int max_num = INT_MAX) {
+int	get_number(int min_num = INT_MIN, int max_num = INT_MAX) {
 	int number;
 	string line;
 
@@ -91,7 +91,7 @@ int get_number(int min_num = INT_MIN, int max_num = INT_MAX) {
 }
 //=================================================================================
 // Безопасно получить строку из консоли
-string get_string(void) {
+string	get_string(void) {
 	string line;
 
 	getline(cin, line);
@@ -99,11 +99,12 @@ string get_string(void) {
 		exit(EXIT_FAILURE);
 	return (line);
 }
-bool file_exists(const string &filename)
+// Проверить
+bool	file_exists(const string &filename)
 {
-	bool is_exists;
+	bool	is_exists;
 
-	ifstream file(filename);
+	ifstream	file(filename);
 	is_exists = file.is_open();
 	file.close();
 	return (is_exists);
@@ -153,7 +154,7 @@ void	test_user() {
 
 	printf_("Какую функцию вы хотите использовать?", YELLOW);
 	printf_("'-1' - запустить все алгоритмы", YELLOW);
-	printf_("'0' - обход в ширину (все узлы равны)", YELLOW);
+	printf_("'0' - узлы имеют одинаковый вес", YELLOW);
 	printf_("'1' - манхэттеновское расстояние", YELLOW);
 	printf_("'2' - линейный конфликт", YELLOW);
 	printf_("'3' - угловые элементы", YELLOW);
@@ -185,8 +186,26 @@ void	test_user() {
 //=================================================================================
 // https://metaschool.ru/pub/games/puzzle15/puzzle15.php	// отсюда можно взять головоломки
 //=================================================================================
+int		linear_conflicts(vector <vector <int> > &v);
+
 int main() {
 	test_user();			// тест дружелюбным интерфейсом
+
+	// vector< vector <int> > v;
+	// v.resize(3);
+	// v[0].push_back(8); // 4
+	// v[0].push_back(0);
+	// v[0].push_back(0);
+
+	// v[1].push_back(1);
+	// v[1].push_back(0);
+	// v[1].push_back(0);
+
+	// v[2].push_back(0);
+	// v[2].push_back(0);
+	// v[2].push_back(0);
+
+	// linear_conflicts(v);
 
 	return (0);
 }

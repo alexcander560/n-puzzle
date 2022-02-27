@@ -50,12 +50,15 @@ int		linear_conflicts(vector <vector <int> > &v) {
 				if ((j == 2 && k == 2) || v[k][i] == 0)
 					continue ;
 				//cout << v[j][i] << " ? " << v[k][i] << endl;
-				if (v[j][i] > v[k][i])
-					res += 2;
+				//if (((v[j][i] - 1) % size == i) && ((v[k][i]- 1) % size == i)) {
+					if (v[j][i] > v[k][i]) {
+						//cout << v[j][i] << " ? " << v[k][i] << endl;
+						res += 2;
+					}
+				//}
 			}
 		}
 	}
-	
 	return (res);
 }
 //=================================================================================
@@ -90,7 +93,6 @@ int		corner_tiles(vector <vector <int> > &v) {
 				res += 2;
 			}
 		}
-		
 	}
 	//cout << "res= " << res << endl;
 	return (res);
@@ -111,7 +113,7 @@ int		linear_conflicts_and_corner_tiles(vector <vector <int> > &v) {
 				if ((i == 2 && k == 2) || v[i][k] == 0)
 					continue ;
 				//cout << v[i][j] << " ? " << v[i][k] << endl;
-				//if (((v[i][j] - 1) / size == i) && ((v[i][k]- 1) / size == i)) {
+				if (((v[i][j] - 1) / size == i) && ((v[i][k]- 1) / size == i)) {
 					if (v[i][j] > v[i][k]) {
 						if (i == 0 && j == 0)
 							up_left = true;
@@ -121,7 +123,7 @@ int		linear_conflicts_and_corner_tiles(vector <vector <int> > &v) {
 							down_left = true;
 						res += 2;
 					}
-				//}
+				}
 			}
 		}
 	}
@@ -178,7 +180,6 @@ int		linear_conflicts_and_corner_tiles(vector <vector <int> > &v) {
 				res += 2;
 			}
 		}
-		
 	}
 	//cout << "res= " << res << endl;
 	return (res);
@@ -198,14 +199,6 @@ int		last_move(vector <vector <int> > &v) {
 
 //=================================================================================
 //=================================================================================
-// Считает вес для головоломки с помощью эвристичесих функций
-// 1 - "Манхэттеновское расстояние"
-// 2 - "Линейные конфликты"
-// 3 - "Угловые элементы"
-// 4 - "Последнее перемещение"
-// 5 - "Манхэттеновское расстояние" + "Линейные конфликты"
-// 6 - "Манхэттеновское расстояние" + "Линейные конфликты" + "Угловые элементы"
-// 7 - "Манхэттеновское расстояние" + "Линейные конфликты" + "Угловые элементы" + "Последнее перемещение"
 
 vector< vector< function<int (vector <vector <int> > &v)> > > const functions
 {

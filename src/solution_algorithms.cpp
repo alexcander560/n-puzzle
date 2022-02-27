@@ -1,13 +1,31 @@
 #include "../includes/Puzzle.hpp"
 
+class Cmp {
+	public:
+		int first;
+		Puzzle second;
+
+		Cmp(int first, Puzzle &second): first (first), second (second) {}
+
+		bool operator< (Cmp const& other) const { return (first > other.first); }
+		bool operator> (Cmp const& other) const { return (first < other.first); }
+};
+
+// std::hash<int> hasher;
+// class HashVectors {
+// public:
+// 	size_t operator() (vector< vector<int> > const &containers) const { return (std::hash<char *>{}((char *)&containers)); }
+// };
+
 //=================================================================================
 // Метод, использующий эвристику
 void	heuristics(Puzzle puzzle, int mod, int mod_print) {
-	multimap<int, Puzzle>			q;			// очередь из вариантов головоломок, требующих рассмотрения
-	set<vector<vector <int> > >	visited;		// множество уже рассмотренных вариантов
-	bool							check, flag = true, lim = false;
-	int								step = 0, size = puzzle.size - 1, max_size_q = 0;
-	Puzzle							res = puzzle;
+	priority_queue<Cmp, vector<Cmp>, std::less<Cmp> >	q;			// очередь из вариантов головоломок, требующих рассмотрения
+	set<vector<vector <int> > >							visited;		// множество уже рассмотренных вариантов
+	bool												check, flag = true, lim = false;
+	int													step = 0, size = puzzle.size - 1, max_size_q = 0;
+	Puzzle												res = puzzle;
+	Cmp													it(heuristics_count(puzzle.box, mod), puzzle);
 
 	if (!puzzle.validity) {
 		printf_("Головоломка не валидна", YELLOW);
@@ -18,30 +36,31 @@ void	heuristics(Puzzle puzzle, int mod, int mod_print) {
 		return ;
 	}
 
-	q.insert(make_pair(heuristics_count(puzzle.box, mod), puzzle));
+	q.push(Cmp(heuristics_count(puzzle.box, mod), puzzle));
 	visited.insert(puzzle.box);
 
 	while (flag) {
-		multimap<int, Puzzle>::iterator it = q.begin();
+		it = q.top();
+		q.pop();
 
 		//cout << "step= " << step << endl;
 		for (auto command : commands) {
-			check = (get<2>(command) ? it->second.point.first : it->second.point.second) != (get<3>(command) ? size : 0);
-			if (it->second.direction != get<0>(command) && check) {
-				Puzzle	temp = it->second;
+			check = (get<2>(command) ? it.second.point.first : it.second.point.second) != (get<3>(command) ? size : 0);
+			if (it.second.direction != get<0>(command) && check) {
+				Puzzle	temp = it.second;
 
 				step++;
 				temp.swapBlock(get<1>(command));
 				if (visited.insert(temp.box).second)
-					q.insert(make_pair(heuristics_count(temp.box, mod), temp));
+					q.push(Cmp(heuristics_count(temp.box, mod), temp));
 				if (temp.answer) {
 					res = temp;
-					goto ready;
+					flag = false;
+					break ;
 				}
 			}
 		}
 
-		q.erase(it);
 		if (q.size() == 0)
 			flag = false;
 		if (step >= LIMIT) {
@@ -51,11 +70,8 @@ void	heuristics(Puzzle puzzle, int mod, int mod_print) {
 		if (q.size() > max_size_q)
 			max_size_q = q.size();
 	}
-ready:
 	int	count_elem = q.size() - (q.size() ? 1 : 0);
 
-	if (!flag)
-		printf_("Перебраны все варианты, но головоломка не решена", YELLOW);
 	if (lim)
 		printf_("Алгоритм сделал " + to_string(LIMIT) + " шагов, но не пришёл к решению, стоит выбрать другой метод =(", YELLOW);
 	if (q.size() != 0)
@@ -67,7 +83,7 @@ ready:
 }
 //=================================================================================
 //=================================================================================
-// Метод решения обходом в ширину (все узлы имеют одинаковый вес и равноценны между собой)
+// Метод решения, когда все узлы имеют одинаковый вес и равноценны между собой
 void	uniform_cost(Puzzle puzzle, int mod_print) {
 	queue<Puzzle>					q;			// очередь из вариантов головоломок, требующих рассмотрения
 	set<vector <vector <int> > >	visited;	// множество уже рассмотренных вариантов
@@ -97,8 +113,10 @@ void	uniform_cost(Puzzle puzzle, int mod_print) {
 				temp.swapBlock(get<1>(command));
 				if (visited.insert(temp.box).second)
 					q.push(temp);
-				if (temp.answer)
-					goto ready;
+				if (temp.answer) {
+					flag = false;
+					break ;
+				}
 			}
 		}
 		q.pop();
@@ -109,11 +127,8 @@ void	uniform_cost(Puzzle puzzle, int mod_print) {
 			break ;
 		}
 	}
-ready:
 	int	count_elem = q.size() - (q.size() ? 1 : 0);
 	
-	if (!flag)
-		printf_("Перебраны все варианты, но головоломка не решена", YELLOW);
 	if (lim)
 		printf_("Алгоритм сделал " + to_string(LIMIT) + " шагов, но не пришёл к решению, стоит выбрать другой метод =(", YELLOW);
 	if (q.size() != 0)
