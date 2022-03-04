@@ -34,7 +34,8 @@ void	test_start(T numbers, int mod, int mod_print = 0) {
 		{13, "Манхэттеновское расстояние + Угловые элементы + Последний ход"},
 		{14, "Линейный конфликт + Угловые элементы + Последний ход"},
 		{15, "Манхэттеновское расстояние + Линейный конфликт + Угловые элементы + Последний ход"},
-		{16, "Все узлы равны(поиск в глубину)"}
+		{16, "Все узлы равны(поиск в глубину)"},
+		{17, "Жадный поиск"}
 	};
 
 	cout << "=====================================" << endl;
@@ -59,6 +60,11 @@ void	test_start(T numbers, int mod, int mod_print = 0) {
 		case 16:
 			printf_(methods[16], BLUE);
 			uniform_cost_depth(puzzle, mod_print);
+			timeSetting(time);
+			break ;
+		case 17:
+			printf_(methods[17], BLUE);
+			greedy_search(puzzle, mod_print);
 			timeSetting(time);
 			break ;
 		default:
@@ -158,7 +164,7 @@ void	test_user() {
 	}
 
 	printf_("Какую функцию вы хотите использовать?", YELLOW);
-	printf_("'-1' - запустить все алгоритмы", YELLOW);
+	printf_("'-1' - запустить все алгоритмы(кроме 2-х последних)", YELLOW);
 	printf_("'0' - узлы имеют одинаковый вес(поиск в ширину)", YELLOW);
 	printf_("'1' - манхэттеновское расстояние", YELLOW);
 	printf_("'2' - линейный конфликт", YELLOW);
@@ -176,7 +182,8 @@ void	test_user() {
 	printf_("'14' - линейный конфликт + угловые элементы + последний ход", YELLOW);
 	printf_("'15' - манхэттеновское расстояние + линейный конфликт + угловые элементы + последний ход", YELLOW);
 	printf_("'16' - узлы имеют одинаковый вес(поиск в глубину)", YELLOW);
-	mode = get_number(-1, 16);
+	printf_("'17' - жадный поиск", YELLOW);
+	mode = get_number(-1, 17);
 
 	printf_("Хотите ли вы видеть процесс решения головоломки?", YELLOW);
 	printf_("'0' - нет", YELLOW);
@@ -196,9 +203,6 @@ int		linear_conflicts(vector <vector <int> > &v);
 
 int main() {
 	test_user();			// тест дружелюбным интерфейсом
-
-	// test_start("check.txt", 0, 0);
-	// test_start("check.txt", 16, 0);
 
 	return (0);
 }

@@ -31,6 +31,7 @@ using namespace std;
 #define RIGHT		4
 
 #define LIMIT		300000
+#define BEST		15
 
 #define clear() printf("\033[H\033[J")
 
@@ -41,6 +42,7 @@ void	printf_noendl_(string str, string color);
 
 void	uniform_cost(Puzzle puzzle, int mod_print = 0);
 void	uniform_cost_depth(Puzzle puzzle, int mod_print = 0);
+void	greedy_search(Puzzle puzzle, int mod_print = 0);
 int		heuristics_count(vector <vector <int> > &v, int mod);
 void	heuristics(Puzzle puzzle, int mod, int mod_print = 0);
 
