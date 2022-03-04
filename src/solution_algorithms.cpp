@@ -43,7 +43,6 @@ void	heuristics(Puzzle puzzle, int mod, int mod_print) {
 		it = q.top();
 		q.pop();
 
-		//cout << "step= " << step << endl;
 		for (auto command : commands) {
 			check = (get<2>(command) ? it.second.point.first : it.second.point.second) != (get<3>(command) ? size : 0);
 			if (it.second.direction != get<0>(command) && check) {
@@ -83,7 +82,7 @@ void	heuristics(Puzzle puzzle, int mod, int mod_print) {
 }
 //=================================================================================
 //=================================================================================
-// Метод решения, когда все узлы имеют одинаковый вес и равноценны между собой
+// Метод решения, когда все узлы имеют одинаковый вес и равноценны между собой (поиск в ширину)
 void	uniform_cost(Puzzle puzzle, int mod_print) {
 	queue<Puzzle>					q;			// очередь из вариантов головоломок, требующих рассмотрения
 	set<vector <vector <int> > >	visited;	// множество уже рассмотренных вариантов
@@ -103,7 +102,6 @@ void	uniform_cost(Puzzle puzzle, int mod_print) {
 	visited.insert(puzzle.box);
 
 	while (flag) {
-		//cout << "step= " << step << endl;
 		for (auto command : commands) {
 			check = (get<2>(command) ? q.front().point.first : q.front().point.second) != (get<3>(command) ? q.front().size - 1 : 0);
 			if (q.front().direction != get<0>(command) && check) {
@@ -138,4 +136,61 @@ void	uniform_cost(Puzzle puzzle, int mod_print) {
 	cout << "Рассмотренных головоломок: " << visited.size() << endl;
 	cout << "Шагов: " << step << endl;
 }
+//=================================================================================
+// Метод решения, когда все узлы имеют одинаковый вес и равноценны между собой (поиск в глубину)
+void	uniform_cost_depth(Puzzle puzzle, int mod_print) {
+	stack<Puzzle>					q;			// очередь из вариантов головоломок, требующих рассмотрения
+	set<vector <vector <int> > >	visited;	// множество уже рассмотренных вариантов
+	bool							check, flag = true, lim = false;
+	int								step = 0, max_size_q = 0;
+
+	if (!puzzle.validity) {
+		printf_("Головоломка не валидна", YELLOW);
+		return ;
+	}
+	if (puzzle.answer) {
+		printf_("Головоломка уже решена", YELLOW);
+		return ;
+	}
+
+	q.push(puzzle);
+	visited.insert(puzzle.box);
+
+	while (flag) {
+		Puzzle qqq= q.top();
+		q.pop();
+		for (auto command : commands) {
+			check = (get<2>(command) ? qqq.point.first : qqq.point.second) != (get<3>(command) ? qqq.size - 1 : 0);
+			if (qqq.direction != get<0>(command) && check) {
+				Puzzle	temp = qqq;
+
+				step++;
+				temp.swapBlock(get<1>(command));
+				if (visited.insert(temp.box).second)
+					q.push(temp);
+				if (temp.answer) {
+					flag = false;
+					break ;
+				}
+			}
+		}
+		if (q.size() == 0)
+			flag = false;
+		if (step >= LIMIT) {
+			lim = true;
+			break ;
+		}
+	}
+	int	count_elem = q.size() - (q.size() ? 1 : 0);
+	
+	if (lim)
+		printf_("Алгоритм сделал " + to_string(LIMIT) + " шагов, но не пришёл к решению, стоит выбрать другой метод =(", YELLOW);
+	if (q.size() != 0)
+		q.top().print(mod_print);	// должна быть решённая головоломка
+	cout << "Элементов в очереди: " << count_elem << endl;
+	cout << "Максимальное кол-во элементов в очереди: " << ((max_size_q > count_elem) ? max_size_q : count_elem) << endl;
+	cout << "Рассмотренных головоломок: " << visited.size() << endl;
+	cout << "Шагов: " << step << endl;
+}
+//=================================================================================
 //=================================================================================

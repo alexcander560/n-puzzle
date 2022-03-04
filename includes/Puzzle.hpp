@@ -40,15 +40,16 @@ void	printf_(string str, string color);
 void	printf_noendl_(string str, string color);
 
 void	uniform_cost(Puzzle puzzle, int mod_print = 0);
+void	uniform_cost_depth(Puzzle puzzle, int mod_print = 0);
 int		heuristics_count(vector <vector <int> > &v, int mod);
 void	heuristics(Puzzle puzzle, int mod, int mod_print = 0);
 
 set< tuple<int, int, bool, bool> > const commands
 {
-		make_tuple(DOWN, UP, true, false),
-		make_tuple(UP, DOWN, true, true),
-		make_tuple(LEFT, RIGHT, false, true),
-		make_tuple(RIGHT, LEFT, false, false)
+	make_tuple(DOWN, UP, true, false),
+	make_tuple(UP, DOWN, true, true),
+	make_tuple(LEFT, RIGHT, false, true),
+	make_tuple(RIGHT, LEFT, false, false)
 };
 
 class Puzzle {
