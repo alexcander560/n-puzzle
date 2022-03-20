@@ -11,12 +11,6 @@ class Cmp {
 		bool operator> (Cmp const& other) const { return (first < other.first); }
 };
 
-// std::hash<int> hasher;
-// class HashVectors {
-// public:
-// 	size_t operator() (vector< vector<int> > const &containers) const { return (std::hash<char *>{}((char *)&containers)); }
-// };
-
 //=================================================================================
 // Метод, использующий эвристику
 void	heuristics(Puzzle puzzle, int mod, int mod_print) {

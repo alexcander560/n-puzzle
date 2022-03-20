@@ -198,7 +198,7 @@ class Puzzle {
 			}
 			return (true);
 		}
-		// Проверка, можно ли сложить данную головоломку (от этот блок ещё стоит проверить, но вроед ок)
+		// Проверка, можно ли сложить данную головоломку
 		bool			check_decision(vector<int> v) const {
 			int				len = size * size, count = 0;
 
